@@ -273,16 +273,13 @@ class BangumiDetailActivity : BaseActivity() {
                 .trim()
                 .takeIf { it.isNotBlank() }
 
-        // 将最新的预告（extras 最后一个）合并到主剧集
+        // 将最新的预告（extras 最后一个）合并到主剧集，放在最后确保倒序时排第一
         val allExtraEpisodes = detail.extraSections.flatMap { it.episodes }
         val latestExtraEpisode = allExtraEpisodes.lastOrNull()
         val latestExtraEpId = latestExtraEpisode?.epId
 
-        val allEpisodes = mutableListOf<BangumiEpisode>().apply {
-            addAll(detail.episodes)
-            latestExtraEpisode?.let { add(it) }
-        }
-        mainEpisodes = normalizeEpisodeOrder(allEpisodes)
+        mainEpisodes = normalizeEpisodeOrder(detail.episodes)
+        latestExtraEpisode?.let { mainEpisodes = mainEpisodes + it }
 
         val continueEpIdHint = pendingContinueEpIdHint
         val continueEpIndexHint = pendingContinueEpIndexHint
@@ -300,7 +297,8 @@ class BangumiDetailActivity : BaseActivity() {
                 val bvid = ep.bvid?.trim().orEmpty()
                 val cid = ep.cid
                 if (bvid.isBlank() || cid == null || cid <= 0L) return@mapIndexedNotNull null
-                bangumiEpToVideoCard(ep = ep, defaultIndex = index, sectionTitle = null)
+                val card = bangumiEpToVideoCard(ep = ep, defaultIndex = index, sectionTitle = null)
+                if (ep.epId == latestExtraEpId) card.copy(title = "${card.title}【预告】") else card
             }
 
         extrasCards =
@@ -313,9 +311,14 @@ class BangumiDetailActivity : BaseActivity() {
                     }
             }
 
+        // 倒序时预告排第一，让 autoScroll 定位到预告
         mainSelectedKey =
-            continueEpisode?.let { target ->
-                mainEpisodeCards.firstOrNull { it.epId == target.epId }?.let(::cardStableKey)
+            if (episodeOrderReversed && latestExtraEpId != null) {
+                mainEpisodeCards.firstOrNull { it.epId == latestExtraEpId }?.let(::cardStableKey)
+            } else {
+                continueEpisode?.let { target ->
+                    mainEpisodeCards.firstOrNull { it.epId == target.epId }?.let(::cardStableKey)
+                }
             }
     }
 
