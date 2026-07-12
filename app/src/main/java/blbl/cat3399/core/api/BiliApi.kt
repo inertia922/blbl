@@ -990,27 +990,14 @@ object BiliApi {
                     val section = sections.optJSONObject(i) ?: continue
                     val sectionTitle = section.optString("title", "").trim()
                     val sectionEpisodes = section.optJSONArray("episodes") ?: continue
-                    AppLog.d(TAG, "Section[$i] title=$sectionTitle episodes_count=${sectionEpisodes.length()}")
                     val parsedEpisodes = ArrayList<BangumiEpisode>(sectionEpisodes.length())
                     for (j in 0 until sectionEpisodes.length()) {
                         val ep = sectionEpisodes.optJSONObject(j) ?: continue
                         val parsedEpisode = parseEpisode(ep) ?: continue
-                        if (!seen.add(parsedEpisode.epId)) {
-                            if (sectionTitle.contains("预告")) {
-                                AppLog.d(TAG, "  [$i-$j] Duplicate: ${parsedEpisode.title} epId=${parsedEpisode.epId}")
-                            }
-                            continue
-                        }
+                        if (!seen.add(parsedEpisode.epId)) continue
                         parsedEpisodes.add(parsedEpisode)
-                        if (sectionTitle.contains("预告")) {
-                            AppLog.d(TAG, "  [$i-$j] Added: ${parsedEpisode.title} epId=${parsedEpisode.epId} longTitle=${parsedEpisode.longTitle}")
-                        }
                     }
-                    if (parsedEpisodes.isEmpty()) {
-                        AppLog.d(TAG, "Section[$i] title=$sectionTitle skipped: empty after parsing")
-                        continue
-                    }
-                    AppLog.d(TAG, "Section[$i] title=$sectionTitle added with ${parsedEpisodes.size} episodes")
+                    if (parsedEpisodes.isEmpty()) continue
                     extraSections.add(
                         BangumiEpisodeSection(
                             title = sectionTitle,

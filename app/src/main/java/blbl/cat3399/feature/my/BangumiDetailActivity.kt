@@ -339,13 +339,6 @@ class BangumiDetailActivity : BaseActivity() {
                 "花絮/预告（$n）"
             }
 
-        AppLog.d("BangumiDetail", "applyHeader: extrasCards=${extrasCards.size} extrasHeader=$extrasHeader")
-        extrasCards.forEach { card ->
-            if (card.epId == 1391855L) {
-                AppLog.d("BangumiDetail", "  Found 183 card: ${card.title}")
-            }
-        }
-
         headerAdapter.update(
             title = title,
             metaText = metaText,
