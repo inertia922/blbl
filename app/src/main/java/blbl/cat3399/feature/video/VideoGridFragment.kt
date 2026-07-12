@@ -521,6 +521,7 @@ class VideoGridFragment : Fragment(), RefreshKeyHandler, TabSwitchFocusTarget {
                         ps = ps,
                         fetchRow = key.recommendFetchRow,
                         lastShowList = currentLastShowList(),
+                        isRefresh = key.page == 1,
                     )
                 FetchedPage(
                     items = items,

@@ -98,6 +98,8 @@ internal class WebVideoApi(
                 "fetch_row" to request.fetchRow.toString(),
                 "feed_version" to "V8",
                 "fresh_type" to "4",
+                "homepage_ver" to "1",
+                "brush" to if (request.isRefresh) "1" else "0",
             )
         if (request.lastShowList.isNotBlank()) {
             params["last_showlist"] = request.lastShowList

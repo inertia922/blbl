@@ -1315,6 +1315,7 @@ object BiliApi {
         ps: Int = 20,
         fetchRow: Int = 1,
         lastShowList: String = "",
+        isRefresh: Boolean = false,
     ): List<VideoCard> =
         VideoApiGateway
             .recommend(
@@ -1323,6 +1324,7 @@ object BiliApi {
                     ps = ps,
                     fetchRow = fetchRow,
                     lastShowList = lastShowList,
+                    isRefresh = isRefresh,
                 ),
             ).items
 

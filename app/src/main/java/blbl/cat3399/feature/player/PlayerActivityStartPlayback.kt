@@ -185,6 +185,18 @@ private suspend fun PlayerActivity.loadVideoShotAfterFirstFrame(
     trace?.log("videoShot:done", "ok=${result != null}")
 }
 
+private fun PlayerActivity.showStartupLoadingOverlay() {
+    val b = binding
+    b.bufferingOverlay.visibility = View.VISIBLE
+    b.tvBuffering.text = "加载播放信息…"
+}
+
+internal fun PlayerActivity.dismissStartupLoadingOverlay() {
+    val b = binding
+    if (b.bufferingOverlay.visibility == View.GONE) return
+    resetBufferingOverlayState()
+}
+
 internal fun PlayerActivity.resetPlaybackStateForNewMedia(
     engine: BlblPlayerEngine,
     preservePartsList: Boolean,
@@ -380,6 +392,7 @@ internal fun PlayerActivity.startPlayback(
         engine = engine,
         preservePartsList = startFromList == PlayerVideoListKind.PARTS,
     )
+    showStartupLoadingOverlay()
     updateTopTitleUi(placeholder = initialTitle)
     var titleHintShown = false
     if (showTitleHint) {

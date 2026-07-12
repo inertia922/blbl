@@ -1021,6 +1021,7 @@ class PlayerActivity : BaseActivity() {
                     if (traceFirstFrameLogged) return
                     traceFirstFrameLogged = true
                     trace?.log("ijk:firstFrame", "pos=${engine.currentPosition}ms")
+                    dismissStartupLoadingOverlay()
                 }
             },
         )
@@ -1062,6 +1063,7 @@ class PlayerActivity : BaseActivity() {
                 if (traceFirstFrameLogged) return
                 traceFirstFrameLogged = true
                 trace?.log("exo:firstFrame", "pos=${engine.currentPosition}ms")
+                dismissStartupLoadingOverlay()
             }
         },
         )

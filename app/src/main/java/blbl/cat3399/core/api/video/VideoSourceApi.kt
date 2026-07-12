@@ -17,6 +17,8 @@ data class VideoRecommendRequest(
     // Comma-joined already-shown video ids, e.g. "av_123,av_456". The server uses this
     // to avoid recommending videos the user has already seen in this feed session.
     val lastShowList: String = "",
+    // Whether this is the first fetch of a fresh session (brush=1) vs load-more (brush=0).
+    val isRefresh: Boolean = false,
 )
 
 data class VideoRecommendPage(
