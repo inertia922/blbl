@@ -90,17 +90,22 @@ internal class WebVideoApi(
 
     override suspend fun recommend(request: VideoRecommendRequest): VideoRecommendPage {
         val keys = transport.ensureWbiKeys()
+        val params =
+            linkedMapOf(
+                "ps" to request.ps.toString(),
+                "fresh_idx" to request.freshIdx.toString(),
+                "fresh_idx_1h" to request.freshIdx.toString(),
+                "fetch_row" to request.fetchRow.toString(),
+                "feed_version" to "V8",
+                "fresh_type" to "4",
+            )
+        if (request.lastShowList.isNotBlank()) {
+            params["last_showlist"] = request.lastShowList
+        }
         val url =
             transport.signedWbiUrl(
                 path = "/x/web-interface/wbi/index/top/feed/rcmd",
-                params =
-                    mapOf(
-                        "ps" to request.ps.toString(),
-                        "fresh_idx" to request.freshIdx.toString(),
-                        "fresh_idx_1h" to request.freshIdx.toString(),
-                        "fetch_row" to request.fetchRow.toString(),
-                        "feed_version" to "V8",
-                    ),
+                params = params,
                 keys = keys,
             )
         val json = transport.getJson(url)

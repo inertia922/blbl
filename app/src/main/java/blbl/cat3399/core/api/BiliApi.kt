@@ -1314,10 +1314,17 @@ object BiliApi {
         freshIdx: Int = 1,
         ps: Int = 20,
         fetchRow: Int = 1,
+        lastShowList: String = "",
     ): List<VideoCard> =
         VideoApiGateway
-            .recommend(VideoRecommendRequest(freshIdx = freshIdx, ps = ps, fetchRow = fetchRow))
-            .items
+            .recommend(
+                VideoRecommendRequest(
+                    freshIdx = freshIdx,
+                    ps = ps,
+                    fetchRow = fetchRow,
+                    lastShowList = lastShowList,
+                ),
+            ).items
 
     suspend fun popular(pn: Int = 1, ps: Int = 20): List<VideoCard> = popularPage(pn = pn, ps = ps).items
 

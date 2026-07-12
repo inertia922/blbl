@@ -515,7 +515,13 @@ class VideoGridFragment : Fragment(), RefreshKeyHandler, TabSwitchFocusTarget {
     ): FetchedPage {
         return when (source) {
             SRC_RECOMMEND -> {
-                val items = BiliApi.recommend(freshIdx = key.page, ps = ps, fetchRow = key.recommendFetchRow)
+                val items =
+                    BiliApi.recommend(
+                        freshIdx = key.page,
+                        ps = ps,
+                        fetchRow = key.recommendFetchRow,
+                        lastShowList = currentLastShowList(),
+                    )
                 FetchedPage(
                     items = items,
                     nextKey =
@@ -563,6 +569,16 @@ class VideoGridFragment : Fragment(), RefreshKeyHandler, TabSwitchFocusTarget {
                 )
             }
         }
+    }
+
+    private fun currentLastShowList(): String {
+        if (!::adapter.isInitialized) return ""
+        val aids =
+            adapter.snapshot()
+                .mapNotNull { it.aid?.takeIf { a -> a > 0 } }
+                .distinct()
+        if (aids.isEmpty()) return ""
+        return aids.joinToString(separator = ",") { "av_$it" }
     }
 
     private fun openDetail(position: Int) {
