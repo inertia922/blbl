@@ -7,12 +7,10 @@ import androidx.fragment.app.Fragment
 import blbl.cat3399.R
 import blbl.cat3399.core.prefs.AppPrefs
 import blbl.cat3399.core.net.BiliClient
-import blbl.cat3399.feature.category.CategoryFragment
 import blbl.cat3399.feature.custom.CustomPageFragment
 import blbl.cat3399.feature.custom.CustomPageTabRegistry
 import blbl.cat3399.feature.dynamic.DynamicFragment
 import blbl.cat3399.feature.home.HomeFragment
-import blbl.cat3399.feature.live.LiveFragment
 import blbl.cat3399.feature.my.MyFragment
 import blbl.cat3399.feature.search.SearchFragment
 
@@ -50,15 +48,6 @@ object MainRootNavRegistry {
                 fragmentFactory = { HomeFragment.newInstance() },
             ),
             RootNavSpec(
-                navId = SidebarNavAdapter.ID_CATEGORY,
-                key = "category",
-                titleRes = R.string.tab_category,
-                iconRes = R.drawable.ic_nav_category,
-                startupPageKey = AppPrefs.STARTUP_PAGE_CATEGORY,
-                matchesFragment = { it is CategoryFragment },
-                fragmentFactory = { CategoryFragment.newInstance() },
-            ),
-            RootNavSpec(
                 navId = SidebarNavAdapter.ID_DYNAMIC,
                 key = "dynamic",
                 titleRes = R.string.tab_dynamic,
@@ -66,15 +55,6 @@ object MainRootNavRegistry {
                 startupPageKey = AppPrefs.STARTUP_PAGE_DYNAMIC,
                 matchesFragment = { it is DynamicFragment },
                 fragmentFactory = { DynamicFragment.newInstance() },
-            ),
-            RootNavSpec(
-                navId = SidebarNavAdapter.ID_LIVE,
-                key = "live",
-                titleRes = R.string.tab_live,
-                iconRes = R.drawable.ic_nav_live,
-                startupPageKey = AppPrefs.STARTUP_PAGE_LIVE,
-                matchesFragment = { it is LiveFragment },
-                fragmentFactory = { LiveFragment.newInstance() },
             ),
             RootNavSpec(
                 navId = SidebarNavAdapter.ID_CUSTOM,

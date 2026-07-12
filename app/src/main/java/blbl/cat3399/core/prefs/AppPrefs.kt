@@ -194,7 +194,7 @@ class AppPrefs(context: Context) {
         set(value) = prefs.edit().putBoolean(KEY_DANMAKU_ALLOW_TOP, value).apply()
 
     var danmakuAllowBottom: Boolean
-        get() = prefs.getBoolean(KEY_DANMAKU_ALLOW_BOTTOM, true)
+        get() = prefs.getBoolean(KEY_DANMAKU_ALLOW_BOTTOM, false)
         set(value) = prefs.edit().putBoolean(KEY_DANMAKU_ALLOW_BOTTOM, value).apply()
 
     var danmakuAllowScroll: Boolean
@@ -206,7 +206,7 @@ class AppPrefs(context: Context) {
         set(value) = prefs.edit().putBoolean(KEY_DANMAKU_ALLOW_COLOR, value).apply()
 
     var danmakuAllowSpecial: Boolean
-        get() = prefs.getBoolean(KEY_DANMAKU_ALLOW_SPECIAL, true)
+        get() = prefs.getBoolean(KEY_DANMAKU_ALLOW_SPECIAL, false)
         set(value) = prefs.edit().putBoolean(KEY_DANMAKU_ALLOW_SPECIAL, value).apply()
 
     var danmakuAiShieldEnabled: Boolean
@@ -297,7 +297,7 @@ class AppPrefs(context: Context) {
         }
 
     var danmakuSpeed: Int
-        get() = prefs.getInt(KEY_DANMAKU_SPEED, 4)
+        get() = prefs.getInt(KEY_DANMAKU_SPEED, 3)
         set(value) = prefs.edit().putInt(KEY_DANMAKU_SPEED, value).apply()
 
     var danmakuArea: Float
@@ -312,7 +312,7 @@ class AppPrefs(context: Context) {
         set(value) = prefs.edit().putFloat(KEY_DANMAKU_AREA, normalizeDanmakuArea(value)).apply()
 
     var playerPreferredQn: Int
-        get() = prefs.getInt(KEY_PLAYER_PREFERRED_QN, 80)
+        get() = prefs.getInt(KEY_PLAYER_PREFERRED_QN, 120)
         set(value) = prefs.edit().putInt(KEY_PLAYER_PREFERRED_QN, value).apply()
 
     var playerPreferredQnPortrait: Int
@@ -706,7 +706,7 @@ class AppPrefs(context: Context) {
         set(value) = prefs.edit().putBoolean(KEY_PLAYER_PERSISTENT_BOTTOM_PROGRESS, value).apply()
 
     var playerPersistentClockEnabled: Boolean
-        get() = prefs.getBoolean(KEY_PLAYER_PERSISTENT_CLOCK, false)
+        get() = prefs.getBoolean(KEY_PLAYER_PERSISTENT_CLOCK, true)
         set(value) = prefs.edit().putBoolean(KEY_PLAYER_PERSISTENT_CLOCK, value).apply()
 
     var playerTouchGesturesEnabled: Boolean
@@ -1143,7 +1143,7 @@ class AppPrefs(context: Context) {
         const val DANMAKU_AREA_MIN = 0.10f
         const val DANMAKU_AREA_MAX = 1.00f
         const val DANMAKU_AREA_STEP = 0.10f
-        const val DANMAKU_AREA_DEFAULT = DANMAKU_AREA_MAX
+        const val DANMAKU_AREA_DEFAULT = 0.10f
         const val DANMAKU_AREA_COMPAT_EPSILON = 0.0001f
 
         val DANMAKU_AREA_OPTIONS: List<Float> = (1..10).map { it / 10f }

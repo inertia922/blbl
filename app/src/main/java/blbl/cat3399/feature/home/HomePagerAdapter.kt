@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import blbl.cat3399.R
 import blbl.cat3399.core.prefs.AppPrefs
+import blbl.cat3399.feature.live.LiveGridFragment
+import blbl.cat3399.feature.live.LiveGridFragment
 import blbl.cat3399.feature.video.VideoGridFragment
 
 data class HomeTabSpec(
@@ -18,13 +20,15 @@ object HomeTabs {
     const val KEY_POPULAR = "popular"
     const val KEY_BANGUMI = "bangumi"
     const val KEY_CINEMA = "cinema"
+    const val KEY_LIVE = "live"
 
     val all: List<HomeTabSpec> =
         listOf(
             HomeTabSpec(KEY_RECOMMEND, R.string.tab_recommend) { VideoGridFragment.newRecommend() },
-            HomeTabSpec(KEY_POPULAR, R.string.tab_popular) { VideoGridFragment.newPopular() },
+            HomeTabSpec(KEY_LIVE, R.string.tab_live) { LiveGridFragment.newRecommend() },
             HomeTabSpec(KEY_BANGUMI, R.string.tab_bangumi) { PgcRecommendGridFragment.newBangumi() },
             HomeTabSpec(KEY_CINEMA, R.string.tab_cinema) { PgcRecommendGridFragment.newCinema() },
+            HomeTabSpec(KEY_POPULAR, R.string.tab_popular) { VideoGridFragment.newPopular() },
         )
 
     fun visibleTabs(prefs: AppPrefs): List<HomeTabSpec> = filterVisible(all, prefs.mainHomeVisibleTabs)
