@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Application-level fallback theme: Default preset (Dark + Violet accent). -->
-    <style name="Theme.Blbl" parent="Theme.Blbl.Base.Dark">
+    <!-- Application-level fallback theme: Default preset (Light + Violet accent). -->
+    <style name="Theme.Blbl" parent="Theme.Blbl.Base.Light">
         <item name="blblAccent">@color/blbl_purple</item>
         <item name="blblAccentContainer">@color/blbl_accent_violet_container</item>
         <item name="blblAccentWeak">@color/blbl_accent_violet_weak</item>
@@ -35,6 +35,27 @@
         <item name="android:alertDialogTheme">@style/ThemeOverlay.Blbl.MaterialAlertDialog</item>
 
         <item name="android:forceDarkAllowed" tools:targetApi="q">true</item>
+    </style>
+
+    <style name="Theme.Blbl.Base.Light" parent="Theme.Blbl.Base">
+        <item name="colorPrimary">@color/blbl_surface_light</item>
+        <item name="colorPrimaryVariant">@color/blbl_surface_light</item>
+        <item name="colorOnPrimary">@color/blbl_text_light</item>
+
+        <item name="android:colorBackground">@color/blbl_bg_light</item>
+        <item name="colorBackground">@color/blbl_bg_light</item>
+        <item name="blblContentBackground">@color/blbl_content_bg_light</item>
+        <item name="colorSurface">@color/blbl_surface_light</item>
+        <item name="colorOnSurface">@color/blbl_text_light</item>
+        <item name="blblDialogSurface">@color/blbl_surface_light</item>
+        <item name="blblOnPageBackdrop">@color/blbl_text_light</item>
+        <item name="blblOnPageBackdropSecondary">@color/blbl_text_secondary_light</item>
+
+        <item name="android:statusBarColor">@color/blbl_bg_light</item>
+        <item name="android:navigationBarColor">@color/blbl_bg_light</item>
+        <item name="android:windowBackground">@color/blbl_bg_light</item>
+        <item name="android:textColorPrimary">@color/blbl_text_light</item>
+        <item name="android:textColorSecondary">@color/blbl_text_secondary_light</item>
     </style>
 
     <style name="Theme.Blbl.Base.Dark" parent="Theme.Blbl.Base">

@@ -24,10 +24,10 @@ object HomeTabs {
     val all: List<HomeTabSpec> =
         listOf(
             HomeTabSpec(KEY_RECOMMEND, R.string.tab_recommend) { VideoGridFragment.newRecommend() },
-            HomeTabSpec(KEY_LIVE, R.string.tab_live) { LiveGridFragment.newRecommend() },
+            HomeTabSpec(KEY_POPULAR, R.string.tab_popular) { VideoGridFragment.newPopular() },
             HomeTabSpec(KEY_BANGUMI, R.string.tab_bangumi) { PgcRecommendGridFragment.newBangumi() },
             HomeTabSpec(KEY_CINEMA, R.string.tab_cinema) { PgcRecommendGridFragment.newCinema() },
-            HomeTabSpec(KEY_POPULAR, R.string.tab_popular) { VideoGridFragment.newPopular() },
+            HomeTabSpec(KEY_LIVE, R.string.tab_live) { LiveGridFragment.newRecommend() },
         )
 
     fun visibleTabs(prefs: AppPrefs): List<HomeTabSpec> = filterVisible(all, prefs.mainHomeVisibleTabs)

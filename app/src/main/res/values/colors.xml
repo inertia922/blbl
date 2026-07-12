@@ -5,6 +5,13 @@
     <color name="blbl_text">#EDEDED</color>
     <color name="blbl_text_secondary">#B3B3B3</color>
 
+    <!-- Base palette: Default light preset. -->
+    <color name="blbl_bg_light">#F5F5F5</color>
+    <color name="blbl_content_bg_light">#FFFFFF</color>
+    <color name="blbl_surface_light">#FFFFFF</color>
+    <color name="blbl_text_light">#121212</color>
+    <color name="blbl_text_secondary_light">#666666</color>
+
     <!-- Text/icon tint used on top of media covers with scrims/shadows (theme-independent). -->
     <color name="blbl_text_on_media">#EDEDED</color>
 

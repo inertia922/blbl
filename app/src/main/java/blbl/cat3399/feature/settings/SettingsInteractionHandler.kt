@@ -883,16 +883,6 @@ class SettingsInteractionHandler(
                 ) { prefs.mainHomeVisibleTabs = it }
             }
 
-            SettingId.MainCategoryVisibleTabs -> {
-                showVisibleTabsDialog(
-                    sectionIndex = state.currentSectionIndex,
-                    focusId = entry.id,
-                    title = "分类页显示页面",
-                    options = CategoryZones.defaultZones.map { CategoryZones.stableKeyFor(it) to it.title },
-                    selectedKeys = prefs.mainCategoryVisibleTabs,
-                ) { prefs.mainCategoryVisibleTabs = it }
-            }
-
             SettingId.MainLiveVisibleTabs -> {
                 showVisibleTabsDialog(
                     sectionIndex = state.currentSectionIndex,
@@ -901,16 +891,6 @@ class SettingsInteractionHandler(
                     options = LiveFragment.LiveTabs.all.map { it.key to it.title },
                     selectedKeys = prefs.mainLiveVisibleTabs,
                 ) { prefs.mainLiveVisibleTabs = it }
-            }
-
-            SettingId.MainMyVisibleTabs -> {
-                showVisibleTabsDialog(
-                    sectionIndex = state.currentSectionIndex,
-                    focusId = entry.id,
-                    title = "我的页显示页面",
-                    options = MyTabs.all.map { it.key to activity.getString(it.titleRes) },
-                    selectedKeys = prefs.mainMyVisibleTabs,
-                ) { prefs.mainMyVisibleTabs = it }
             }
 
             SettingId.UiScaleFactor -> {
@@ -1549,10 +1529,6 @@ class SettingsInteractionHandler(
             }
 
             SettingId.ProjectUrl -> showProjectDialog()
-
-            SettingId.QqGroup -> {
-                copyToClipboard(label = "QQ交流群", text = SettingsConstants.QQ_GROUP, toastText = "已复制群号：${SettingsConstants.QQ_GROUP}")
-            }
 
             SettingId.PlayerKernelCheck -> handlePlayerKernelCheck()
 

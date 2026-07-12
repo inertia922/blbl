@@ -5,6 +5,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -24,7 +25,7 @@ import blbl.cat3399.core.ui.postIfAlive
 import blbl.cat3399.core.ui.postIfAttached
 import blbl.cat3399.core.ui.requestFocusAdapterPositionReliable
 import blbl.cat3399.core.ui.requestFocusFirstItemOrSelfAfterRefresh
-import blbl.cat3399.databinding.FragmentVideoGridBinding
+import blbl.cat3399.databinding.FragmentPgcGridBinding
 import blbl.cat3399.feature.my.BangumiFollowAdapter
 import blbl.cat3399.feature.my.BangumiDetailActivity
 import blbl.cat3399.ui.RefreshKeyHandler
@@ -63,6 +64,20 @@ class PgcRecommendGridFragment : Fragment(), RefreshKeyHandler, TabSwitchFocusTa
             }
         }
 
+        data object BangumiTrending : PgcGridSource {
+            override val isDrama: Boolean = false
+            override val logName: String = "bangumi_trending"
+
+            override suspend fun fetch(key: PgcPagingKey): FetchedPage {
+                val res = BiliApi.pgcBangumiPageTrending(cursor = key.cursor)
+                return FetchedPage(
+                    items = res.items,
+                    nextKey = key.copy(cursor = res.nextCursor),
+                    hasNext = res.hasNext,
+                )
+            }
+        }
+
         data object CinemaRecommend : PgcGridSource {
             override val isDrama: Boolean = true
             override val logName: String = "cinema_recommend"
@@ -73,6 +88,54 @@ class PgcRecommendGridFragment : Fragment(), RefreshKeyHandler, TabSwitchFocusTa
                     items = res.items,
                     nextKey = key.copy(cursor = res.nextCursor),
                     hasNext = res.hasNext,
+                )
+            }
+        }
+
+        data object CinemaTrending : PgcGridSource {
+            override val isDrama: Boolean = true
+            override val logName: String = "cinema_trending"
+
+            override suspend fun fetch(key: PgcPagingKey): FetchedPage {
+                val res = BiliApi.pgcCinemaTabPageTrending(cursor = key.cursor)
+                return FetchedPage(
+                    items = res.items,
+                    nextKey = key.copy(cursor = res.nextCursor),
+                    hasNext = res.hasNext,
+                )
+            }
+        }
+
+        data object BangumiFollowing : PgcGridSource {
+            override val isDrama: Boolean = false
+            override val logName: String = "bangumi_following"
+
+            override suspend fun fetch(key: PgcPagingKey): FetchedPage {
+                val nav = BiliApi.nav()
+                val userId = nav.optJSONObject("data")?.optLong("mid") ?: 0L
+                if (userId <= 0) throw Exception("需要登录")
+                val res = BiliApi.bangumiFollowList(vmid = userId, type = 1, pn = key.page, ps = 20)
+                return FetchedPage(
+                    items = res.items,
+                    nextKey = key.copy(page = key.page + 1),
+                    hasNext = res.page < res.pages,
+                )
+            }
+        }
+
+        data object CinemaFollowing : PgcGridSource {
+            override val isDrama: Boolean = true
+            override val logName: String = "cinema_following"
+
+            override suspend fun fetch(key: PgcPagingKey): FetchedPage {
+                val nav = BiliApi.nav()
+                val userId = nav.optJSONObject("data")?.optLong("mid") ?: 0L
+                if (userId <= 0) throw Exception("需要登录")
+                val res = BiliApi.bangumiFollowList(vmid = userId, type = 2, pn = key.page, ps = 20)
+                return FetchedPage(
+                    items = res.items,
+                    nextKey = key.copy(page = key.page + 1),
+                    hasNext = res.page < res.pages,
                 )
             }
         }
@@ -96,10 +159,10 @@ class PgcRecommendGridFragment : Fragment(), RefreshKeyHandler, TabSwitchFocusTa
         }
     }
 
-    private var _binding: FragmentVideoGridBinding? = null
+    private var _binding: FragmentPgcGridBinding? = null
     private val binding get() = _binding!!
 
-    private val source: PgcGridSource by lazy { sourceFromArguments(requireArguments()) }
+    private lateinit var source: PgcGridSource
 
     private lateinit var adapter: BangumiFollowAdapter
     private val loadedSeasonIds = HashSet<Long>()
@@ -120,8 +183,18 @@ class PgcRecommendGridFragment : Fragment(), RefreshKeyHandler, TabSwitchFocusTa
     private var dpadGridController: DpadGridController? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentVideoGridBinding.inflate(inflater, container, false)
+        _binding = FragmentPgcGridBinding.inflate(inflater, container, false)
+        initializeSource()
         return binding.root
+    }
+
+    private fun initializeSource() {
+        val isDrama = sourceFromArguments(requireArguments()).isDrama
+        source = if (isDrama) {
+            PgcGridSource.CinemaFollowing
+        } else {
+            PgcGridSource.BangumiFollowing
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -387,7 +460,8 @@ class PgcRecommendGridFragment : Fragment(), RefreshKeyHandler, TabSwitchFocusTa
             } catch (t: Throwable) {
                 if (t is CancellationException) throw t
                 AppLog.e("PgcRecommend", "load failed source=${source.logName} key=$nextKey", t)
-                context?.let { AppToast.show(it, "加载失败，可查看 Logcat(标签 BLBL)") }
+                val errorMsg = t.message ?: "加载失败，可查看 Logcat(标签 BLBL)"
+                context?.let { AppToast.show(it, errorMsg) }
             } finally {
                 if (token == requestToken) _binding?.swipeRefresh?.isRefreshing = false
                 isLoadingMore = false

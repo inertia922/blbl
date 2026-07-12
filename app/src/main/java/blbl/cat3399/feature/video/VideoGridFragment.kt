@@ -178,6 +178,13 @@ class VideoGridFragment : Fragment(), RefreshKeyHandler, TabSwitchFocusTarget {
             )
 
         binding.swipeRefresh.setOnRefreshListener {
+            val now = SystemClock.uptimeMillis()
+            val last = sLastResetBySource[source] ?: 0L
+            if (now - last < RESET_DEBOUNCE_MS) {
+                AppLog.d("VideoGrid", "onRefresh deduped source=$source rid=$rid")
+                return@setOnRefreshListener
+            }
+            sLastResetBySource[source] = now
             pendingFocusFirstCardAfterRefresh = true
             dpadGridController?.parkFocusForDataSetReset()
             resetAndLoad()
@@ -212,6 +219,13 @@ class VideoGridFragment : Fragment(), RefreshKeyHandler, TabSwitchFocusTarget {
         val b = _binding ?: return false
         if (!isResumed) return false
         if (b.swipeRefresh.isRefreshing) return true
+        val now = SystemClock.uptimeMillis()
+        val last = sLastResetBySource[source] ?: 0L
+        if (now - last < RESET_DEBOUNCE_MS) {
+            AppLog.d("VideoGrid", "handleRefreshKey deduped source=$source rid=$rid")
+            return true
+        }
+        sLastResetBySource[source] = now
         pendingFocusFirstCardAfterRefresh = true
         dpadGridController?.parkFocusForDataSetReset()
         b.swipeRefresh.isRefreshing = true
@@ -603,6 +617,9 @@ class VideoGridFragment : Fragment(), RefreshKeyHandler, TabSwitchFocusTarget {
         }
 
     companion object {
+        private const val RESET_DEBOUNCE_MS = 1000L
+        private val sLastResetBySource = mutableMapOf<String, Long>()
+
         private const val ARG_SOURCE = "source"
         private const val ARG_RID = "rid"
         private const val ARG_SEARCH_KEYWORD = "search_keyword"

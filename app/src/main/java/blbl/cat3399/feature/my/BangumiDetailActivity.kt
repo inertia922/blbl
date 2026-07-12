@@ -72,7 +72,6 @@ class BangumiDetailActivity : BaseActivity() {
     private var pendingContinueEpIndexHint: Int? = null
 
     private var mainEpisodes: List<BangumiEpisode> = emptyList()
-    private var extraEpisodes: List<BangumiEpisode> = emptyList()
     private var continueEpisode: BangumiEpisode? = null
 
     private var mainEpisodeCards: List<VideoCard> = emptyList()
@@ -97,7 +96,8 @@ class BangumiDetailActivity : BaseActivity() {
             return
         }
 
-        episodeOrderReversed = BiliClient.prefs.pgcEpisodeOrderReversed
+        episodeOrderReversed = BiliClient.prefs.pgcEpisodeOrderReversed.takeIf { it } ?: true
+        extrasOrderReversed = BiliClient.prefs.pgcExtrasOrderReversed
         pendingContinueEpIdHint = continueEpIdArg
         pendingContinueEpIndexHint = continueEpIndexArg
 
@@ -167,6 +167,7 @@ class BangumiDetailActivity : BaseActivity() {
                 },
                 onSeasonOrderClick = {
                     extrasOrderReversed = !extrasOrderReversed
+                    BiliClient.prefs.pgcExtrasOrderReversed = extrasOrderReversed
                     applyHeader(seasonScrollToStart = true)
                     binding.recycler.post { headerAdapter.requestFocusSeasonOrder() }
                 },
@@ -272,8 +273,16 @@ class BangumiDetailActivity : BaseActivity() {
                 .trim()
                 .takeIf { it.isNotBlank() }
 
-        mainEpisodes = normalizeEpisodeOrder(detail.episodes)
-        extraEpisodes = detail.extraSections.flatMap { it.episodes }
+        // 将最新的预告（extras 最后一个）合并到主剧集
+        val allExtraEpisodes = detail.extraSections.flatMap { it.episodes }
+        val latestExtraEpisode = allExtraEpisodes.lastOrNull()
+        val latestExtraEpId = latestExtraEpisode?.epId
+
+        val allEpisodes = mutableListOf<BangumiEpisode>().apply {
+            addAll(detail.episodes)
+            latestExtraEpisode?.let { add(it) }
+        }
+        mainEpisodes = normalizeEpisodeOrder(allEpisodes)
 
         val continueEpIdHint = pendingContinueEpIdHint
         val continueEpIndexHint = pendingContinueEpIndexHint
@@ -297,12 +306,11 @@ class BangumiDetailActivity : BaseActivity() {
         extrasCards =
             detail.extraSections.flatMap { section ->
                 val sectionTitle = section.title.trim().takeIf { it.isNotBlank() }
-                section.episodes.mapIndexedNotNull { index, ep ->
-                    val bvid = ep.bvid?.trim().orEmpty()
-                    val cid = ep.cid
-                    if (bvid.isBlank() || cid == null || cid <= 0L) return@mapIndexedNotNull null
-                    bangumiEpToVideoCard(ep = ep, defaultIndex = index, sectionTitle = sectionTitle)
-                }
+                section.episodes
+                    .filter { ep -> ep.epId != latestExtraEpId }
+                    .mapIndexedNotNull { index, ep ->
+                        bangumiEpToVideoCard(ep = ep, defaultIndex = index, sectionTitle = sectionTitle)
+                    }
             }
 
         mainSelectedKey =
@@ -327,6 +335,13 @@ class BangumiDetailActivity : BaseActivity() {
             extrasCards.size.takeIf { it > 0 }?.let { n ->
                 "花絮/预告（$n）"
             }
+
+        AppLog.d("BangumiDetail", "applyHeader: extrasCards=${extrasCards.size} extrasHeader=$extrasHeader")
+        extrasCards.forEach { card ->
+            if (card.epId == 1391855L) {
+                AppLog.d("BangumiDetail", "  Found 183 card: ${card.title}")
+            }
+        }
 
         headerAdapter.update(
             title = title,

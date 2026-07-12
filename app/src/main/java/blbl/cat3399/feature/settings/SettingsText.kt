@@ -97,23 +97,9 @@ object SettingsText {
         )
     }
 
-    fun mainCategoryVisibleTabsText(selectedKeys: List<String>): String {
-        return visibleTabsText(
-            options = CategoryZones.defaultZones.map { CategoryZones.stableKeyFor(it) to it.title },
-            selectedKeys = selectedKeys,
-        )
-    }
-
     fun mainLiveVisibleTabsText(selectedKeys: List<String>): String {
         return visibleTabsText(
             options = LiveFragment.LiveTabs.all.map { it.key to it.title },
-            selectedKeys = selectedKeys,
-        )
-    }
-
-    fun mainMyVisibleTabsText(context: Context, selectedKeys: List<String>): String {
-        return visibleTabsText(
-            options = MyTabs.all.map { it.key to context.getString(it.titleRes) },
             selectedKeys = selectedKeys,
         )
     }

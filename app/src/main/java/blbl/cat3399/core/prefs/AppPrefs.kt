@@ -567,7 +567,7 @@ class AppPrefs(context: Context) {
         }
 
     var playerOpenDetailBeforePlay: Boolean
-        get() = prefs.getBoolean(KEY_PLAYER_OPEN_DETAIL_BEFORE_PLAY, false)
+        get() = prefs.getBoolean(KEY_PLAYER_OPEN_DETAIL_BEFORE_PLAY, true)
         set(value) = prefs.edit().putBoolean(KEY_PLAYER_OPEN_DETAIL_BEFORE_PLAY, value).apply()
 
     var fullscreenEnabled: Boolean
@@ -706,7 +706,7 @@ class AppPrefs(context: Context) {
         set(value) = prefs.edit().putBoolean(KEY_PLAYER_PERSISTENT_BOTTOM_PROGRESS, value).apply()
 
     var playerPersistentClockEnabled: Boolean
-        get() = prefs.getBoolean(KEY_PLAYER_PERSISTENT_CLOCK, true)
+        get() = prefs.getBoolean(KEY_PLAYER_PERSISTENT_CLOCK, false)
         set(value) = prefs.edit().putBoolean(KEY_PLAYER_PERSISTENT_CLOCK, value).apply()
 
     var playerTouchGesturesEnabled: Boolean
@@ -837,6 +837,10 @@ class AppPrefs(context: Context) {
     var pgcEpisodeOrderReversed: Boolean
         get() = prefs.getBoolean(KEY_PGC_EPISODE_ORDER_REVERSED, false)
         set(value) = prefs.edit().putBoolean(KEY_PGC_EPISODE_ORDER_REVERSED, value).apply()
+
+    var pgcExtrasOrderReversed: Boolean
+        get() = prefs.getBoolean(KEY_PGC_EXTRAS_ORDER_REVERSED, false)
+        set(value) = prefs.edit().putBoolean(KEY_PGC_EXTRAS_ORDER_REVERSED, value).apply()
 
     var searchHistory: List<String>
         get() = loadStringList(KEY_SEARCH_HISTORY)
@@ -1107,6 +1111,7 @@ class AppPrefs(context: Context) {
         private const val KEY_DYNAMIC_GRID_SPAN = "dynamic_grid_span"
         private const val KEY_PGC_GRID_SPAN = "pgc_grid_span"
         private const val KEY_PGC_EPISODE_ORDER_REVERSED = "pgc_episode_order_reversed"
+        private const val KEY_PGC_EXTRAS_ORDER_REVERSED = "pgc_extras_order_reversed"
         private const val KEY_SEARCH_HISTORY = "search_history"
         private const val KEY_GAIA_VGATE_V_VOUCHER = "gaia_vgate_v_voucher"
         private const val KEY_GAIA_VGATE_V_VOUCHER_SAVED_AT_MS = "gaia_vgate_v_voucher_saved_at_ms"
@@ -1268,7 +1273,6 @@ class AppPrefs(context: Context) {
                 PLAYER_OSD_BTN_DANMAKU,
                 PLAYER_OSD_BTN_COMMENTS,
                 PLAYER_OSD_BTN_DETAIL,
-                PLAYER_OSD_BTN_SPONSOR_SUBMIT,
                 PLAYER_OSD_BTN_UP,
                 PLAYER_OSD_BTN_LIST_PANEL,
                 PLAYER_OSD_BTN_ADVANCED,

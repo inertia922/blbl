@@ -256,21 +256,9 @@ class SettingsRenderer(
                         null,
                     ),
                     SettingEntry(
-                        SettingId.MainCategoryVisibleTabs,
-                        "分类页显示页面",
-                        SettingsText.mainCategoryVisibleTabsText(prefs.mainCategoryVisibleTabs),
-                        null,
-                    ),
-                    SettingEntry(
                         SettingId.MainLiveVisibleTabs,
                         "直播页显示页面",
                         SettingsText.mainLiveVisibleTabsText(prefs.mainLiveVisibleTabs),
-                        null,
-                    ),
-                    SettingEntry(
-                        SettingId.MainMyVisibleTabs,
-                        "我的页显示页面",
-                        SettingsText.mainMyVisibleTabsText(activity, prefs.mainMyVisibleTabs),
                         null,
                     ),
                 )
@@ -445,7 +433,6 @@ class SettingsRenderer(
                 listOf(
                     SettingEntry(SettingId.AppVersion, "版本", BuildConfig.VERSION_NAME, null),
                     SettingEntry(SettingId.ProjectUrl, "项目地址", SettingsConstants.PROJECT_URL, null),
-                    SettingEntry(SettingId.QqGroup, "QQ交流群", SettingsConstants.QQ_GROUP, null),
                     SettingEntry(SettingId.LogTag, "日志标签", "BLBL", "用于 Logcat 过滤"),
                     SettingEntry(SettingId.ExportLogs, "导出日志", "保存文件", null),
                     SettingEntry(SettingId.UploadLogs, "上传日志", "点击上传", "打包并上传日志zip到开发者（含设备/版本/非登录配置元数据）"),
@@ -457,16 +444,6 @@ class SettingsRenderer(
                         "启动时后台检查，有新版本才提示",
                     ),
                     aboutUpdateEntry(),
-                )
-
-            "设备信息" ->
-                listOf(
-                    SettingEntry(SettingId.DeviceCpu, "CPU", Build.SUPPORTED_ABIS.firstOrNull().orEmpty(), null),
-                    SettingEntry(SettingId.DeviceModel, "设备", "${Build.MANUFACTURER} ${Build.MODEL}", null),
-                    SettingEntry(SettingId.DeviceSystem, "系统", "Android ${Build.VERSION.RELEASE} API${Build.VERSION.SDK_INT}", null),
-                    SettingEntry(SettingId.DeviceScreen, "屏幕", SettingsText.screenText(activity.resources), null),
-                    SettingEntry(SettingId.DeviceRam, "RAM", SettingsText.ramText(activity), null),
-                    SettingEntry(SettingId.DeviceDecoder, "硬件解码器", deviceCodecSupportValue, null),
                 )
 
             else -> emptyList()

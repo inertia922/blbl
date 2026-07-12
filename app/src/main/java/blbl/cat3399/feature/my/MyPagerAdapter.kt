@@ -24,9 +24,6 @@ object MyTabs {
         listOf(
             MyTabSpec(KEY_HISTORY, R.string.my_tab_history) { MyHistoryFragment() },
             MyTabSpec(KEY_FAV, R.string.my_tab_fav) { MyFavFoldersFragment() },
-            MyTabSpec(KEY_BANGUMI, R.string.my_tab_bangumi) { MyBangumiFollowFragment.newInstance(type = 1) },
-            MyTabSpec(KEY_DRAMA, R.string.my_tab_drama) { MyBangumiFollowFragment.newInstance(type = 2) },
-            MyTabSpec(KEY_TOVIEW, R.string.my_tab_toview) { MyToViewFragment() },
             MyTabSpec(KEY_LIKE, R.string.my_tab_like) { MyLikeFragment() },
         )
 

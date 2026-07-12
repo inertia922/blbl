@@ -246,9 +246,6 @@ object CustomPageTabRegistry {
             add(CustomPageTabConfig(sourceType = TYPE_LIVE_FOLLOWING))
             add(CustomPageTabConfig(sourceType = TYPE_MY_HISTORY))
             add(CustomPageTabConfig(sourceType = TYPE_MY_FAV))
-            add(CustomPageTabConfig(sourceType = TYPE_MY_BANGUMI))
-            add(CustomPageTabConfig(sourceType = TYPE_MY_DRAMA))
-            add(CustomPageTabConfig(sourceType = TYPE_MY_TOVIEW))
             add(CustomPageTabConfig(sourceType = TYPE_MY_LIKE))
         }
     }
@@ -278,8 +275,8 @@ object CustomPageTabRegistry {
             TYPE_HOME_BANGUMI ->
                 Descriptor(
                     stableKey = TYPE_HOME_BANGUMI,
-                    managerLabel = "推荐-番剧",
-                    tabTitle = "番剧",
+                    managerLabel = "推荐-追番",
+                    tabTitle = "追番",
                     groupKey = GROUP_RECOMMEND,
                     itemOrder = 30,
                     createFragment = { PgcRecommendGridFragment.newBangumi() },
@@ -288,8 +285,8 @@ object CustomPageTabRegistry {
             TYPE_HOME_CINEMA ->
                 Descriptor(
                     stableKey = TYPE_HOME_CINEMA,
-                    managerLabel = "推荐-影视",
-                    tabTitle = "影视",
+                    managerLabel = "推荐-追剧",
+                    tabTitle = "追剧",
                     groupKey = GROUP_RECOMMEND,
                     itemOrder = 40,
                     createFragment = { PgcRecommendGridFragment.newCinema() },
@@ -398,46 +395,13 @@ object CustomPageTabRegistry {
                     createFragment = { CustomMyPageHostFragment.newFav() },
                 )
 
-            TYPE_MY_BANGUMI ->
-                Descriptor(
-                    stableKey = TYPE_MY_BANGUMI,
-                    managerLabel = "我的-追番",
-                    tabTitle = "追番",
-                    groupKey = GROUP_MY,
-                    itemOrder = 30,
-                    requiresLogin = true,
-                    createFragment = { CustomMyPageHostFragment.newBangumi() },
-                )
-
-            TYPE_MY_DRAMA ->
-                Descriptor(
-                    stableKey = TYPE_MY_DRAMA,
-                    managerLabel = "我的-追剧",
-                    tabTitle = "追剧",
-                    groupKey = GROUP_MY,
-                    itemOrder = 40,
-                    requiresLogin = true,
-                    createFragment = { CustomMyPageHostFragment.newDrama() },
-                )
-
-            TYPE_MY_TOVIEW ->
-                Descriptor(
-                    stableKey = TYPE_MY_TOVIEW,
-                    managerLabel = "我的-稍后再看",
-                    tabTitle = "稍后再看",
-                    groupKey = GROUP_MY,
-                    itemOrder = 50,
-                    requiresLogin = true,
-                    createFragment = { CustomMyPageHostFragment.newToView() },
-                )
-
             TYPE_MY_LIKE ->
                 Descriptor(
                     stableKey = TYPE_MY_LIKE,
                     managerLabel = "我的-最近点赞",
                     tabTitle = "最近点赞",
                     groupKey = GROUP_MY,
-                    itemOrder = 60,
+                    itemOrder = 50,
                     requiresLogin = true,
                     createFragment = { CustomMyPageHostFragment.newLike() },
                 )

@@ -306,7 +306,7 @@ class LiveGridFragment : Fragment(), LivePageFocusTarget, RefreshKeyHandler {
                 AppLog.e("LiveGrid", "load failed src=$source page=$startPage", t)
                 context?.let { AppToast.show(it, "加载失败，可查看 Logcat(标签 BLBL)") }
             } finally {
-                if (isRefresh && paging.snapshot().generation == startGen) _binding?.swipeRefresh?.isRefreshing = false
+                if (isRefresh) _binding?.swipeRefresh?.isRefreshing = false
             }
         }
     }

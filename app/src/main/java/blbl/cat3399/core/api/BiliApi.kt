@@ -990,16 +990,27 @@ object BiliApi {
                     val section = sections.optJSONObject(i) ?: continue
                     val sectionTitle = section.optString("title", "").trim()
                     val sectionEpisodes = section.optJSONArray("episodes") ?: continue
+                    AppLog.d(TAG, "Section[$i] title=$sectionTitle episodes_count=${sectionEpisodes.length()}")
                     val parsedEpisodes = ArrayList<BangumiEpisode>(sectionEpisodes.length())
                     for (j in 0 until sectionEpisodes.length()) {
                         val ep = sectionEpisodes.optJSONObject(j) ?: continue
                         val parsedEpisode = parseEpisode(ep) ?: continue
-                        if (!seen.add(parsedEpisode.epId)) continue
+                        if (!seen.add(parsedEpisode.epId)) {
+                            if (sectionTitle.contains("预告")) {
+                                AppLog.d(TAG, "  [$i-$j] Duplicate: ${parsedEpisode.title} epId=${parsedEpisode.epId}")
+                            }
+                            continue
+                        }
                         parsedEpisodes.add(parsedEpisode)
+                        if (sectionTitle.contains("预告")) {
+                            AppLog.d(TAG, "  [$i-$j] Added: ${parsedEpisode.title} epId=${parsedEpisode.epId} longTitle=${parsedEpisode.longTitle}")
+                        }
                     }
                     if (parsedEpisodes.isEmpty()) {
+                        AppLog.d(TAG, "Section[$i] title=$sectionTitle skipped: empty after parsing")
                         continue
                     }
+                    AppLog.d(TAG, "Section[$i] title=$sectionTitle added with ${parsedEpisodes.size} episodes")
                     extraSections.add(
                         BangumiEpisodeSection(
                             title = sectionTitle,
@@ -1145,7 +1156,7 @@ object BiliApi {
         }
     }
 
-    private fun parsePgcPageToBangumiSeasons(json: JSONObject): CursorPage<BangumiSeason> {
+    private fun parsePgcPageToBangumiSeasons(json: JSONObject, moduleTitleFilter: String? = null): CursorPage<BangumiSeason> {
         val result = json.optJSONObject("result") ?: JSONObject()
         val hasNext = result.optInt("has_next", 0) == 1
         val nextCursor = result.optString("next_cursor").trim().takeIf { it.isNotBlank() }
@@ -1157,6 +1168,13 @@ object BiliApi {
                 val seen = HashSet<Long>(256)
                 for (i in 0 until modules.length()) {
                     val module = modules.optJSONObject(i) ?: continue
+                    val moduleTitle = module.optString("title", "").trim()
+                    if (moduleTitleFilter == "exclude_recommend") {
+                        // Skip the main recommend module, get other trending ones
+                        if (moduleTitle.contains("首页推荐")) continue
+                    } else if (moduleTitleFilter != null) {
+                        if (!moduleTitle.contains(moduleTitleFilter)) continue
+                    }
                     val list = module.optJSONArray("items") ?: continue
                     for (j in 0 until list.length()) {
                         val obj = list.optJSONObject(j) ?: continue
@@ -1217,7 +1235,7 @@ object BiliApi {
         return CursorPage(items = items, hasNext = hasNext, nextCursor = nextCursor)
     }
 
-    private fun parsePgcPcBangumiTabToBangumiSeasons(data: JSONObject): CursorPage<BangumiSeason> {
+    private fun parsePgcPcBangumiTabToBangumiSeasons(data: JSONObject, moduleTitleFilter: String? = null): CursorPage<BangumiSeason> {
         val hasNext = data.optInt("has_next", 0) == 1
         val nextCursor = data.optString("next_cursor", "").trim().takeIf { it.isNotBlank() && hasNext }
         val modules = data.optJSONArray("modules") ?: JSONArray()
@@ -1229,7 +1247,15 @@ object BiliApi {
                 for (i in 0 until modules.length()) {
                     val module = modules.optJSONObject(i) ?: continue
                     val moduleTitle = module.optString("title", "").trim()
-                    if (!moduleTitle.contains("猜你喜欢")) continue
+                    
+                    if (moduleTitleFilter == "exclude_guess") {
+                        // Skip the "猜你喜欢" module, get other trending ones
+                        if (moduleTitle.contains("猜你喜欢")) continue
+                    } else {
+                        // Default filter: only "猜你喜欢"
+                        val titleFilter = moduleTitleFilter ?: "猜你喜欢"
+                        if (!moduleTitle.contains(titleFilter)) continue
+                    }
                     val list = module.optJSONArray("items") ?: continue
                     for (j in 0 until list.length()) {
                         val obj = list.optJSONObject(j) ?: continue
@@ -1308,6 +1334,45 @@ object BiliApi {
             throw BiliApiException(apiCode = code, apiMessage = msg)
         }
         return withContext(Dispatchers.Default) { parsePgcPageToBangumiSeasons(json) }
+    }
+
+    suspend fun pgcBangumiPageTrending(cursor: String? = null, build: Int = PGC_PAGE_BUILD_DEFAULT): CursorPage<BangumiSeason> {
+        // For trending/hot content, we'll use the recommend endpoint but filter to exclude "猜你喜欢"
+        val safeCursor = cursor?.trim()?.takeIf { it.isNotBlank() } ?: "0"
+        val params = LinkedHashMap<String, String>(4)
+        params["mobi_app"] = PGC_PAGE_MOBI_APP_DEFAULT
+        params["build"] = build.toString()
+        params["is_refresh"] = "0"
+        params["cursor"] = safeCursor
+        val url =
+            BiliClient.withQuery(
+                "https://api.bilibili.com/pgc/page/pc/bangumi/tab",
+                params,
+            )
+        val json = BiliClient.getJson(url)
+        val code = json.optInt("code", 0)
+        if (code != 0) {
+            val msg = json.optString("message", json.optString("msg", ""))
+            throw BiliApiException(apiCode = code, apiMessage = msg)
+        }
+        val data = json.optJSONObject("data") ?: JSONObject()
+        return withContext(Dispatchers.Default) { parsePgcPcBangumiTabToBangumiSeasons(data, moduleTitleFilter = "exclude_guess") }
+    }
+
+    suspend fun pgcCinemaTabPageTrending(cursor: String? = null, build: Int = PGC_PAGE_BUILD_DEFAULT): CursorPage<BangumiSeason> {
+        // For trending/hot content, we'll use the cinema endpoint but filter to exclude "首页推荐"
+        val params = LinkedHashMap<String, String>(4)
+        params["mobi_app"] = PGC_PAGE_MOBI_APP_DEFAULT
+        params["build"] = build.toString()
+        cursor?.trim()?.takeIf { it.isNotBlank() }?.let { params["cursor"] = it }
+        val url = BiliClient.withQuery("https://api.bilibili.com/pgc/page/cinema/tab", params)
+        val json = BiliClient.getJson(url)
+        val code = json.optInt("code", 0)
+        if (code != 0) {
+            val msg = json.optString("message", json.optString("msg", ""))
+            throw BiliApiException(apiCode = code, apiMessage = msg)
+        }
+        return withContext(Dispatchers.Default) { parsePgcPageToBangumiSeasons(json, moduleTitleFilter = "exclude_recommend") }
     }
 
     suspend fun recommend(
