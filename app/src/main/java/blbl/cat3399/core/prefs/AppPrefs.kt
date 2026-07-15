@@ -13,7 +13,6 @@ import kotlin.math.roundToInt
 class AppPrefs(context: Context) {
     private val appContext = context.applicationContext
     private val prefs = context.getSharedPreferences("blbl_prefs", Context.MODE_PRIVATE)
-    private val defaultPlayerTouchGesturesEnabled by lazy(LazyThreadSafetyMode.NONE) { !appContext.isTvDevice() }
 
     var disclaimerAccepted: Boolean
         get() = prefs.getBoolean(KEY_DISCLAIMER_ACCEPTED, false)
@@ -527,6 +526,18 @@ class AppPrefs(context: Context) {
                     normalizePlayerHoldScrubSeconds(value),
                 ).apply()
 
+    var playerSeekBarClickTraverseCount: Int
+        get() =
+            normalizePlayerSeekBarClickTraverseCount(
+                prefs.getInt(KEY_PLAYER_SEEK_BAR_CLICK_TRAVERSE_COUNT, PLAYER_SEEK_BAR_CLICK_TRAVERSE_COUNT_DEFAULT),
+            )
+        set(value) =
+            prefs.edit()
+                .putInt(
+                    KEY_PLAYER_SEEK_BAR_CLICK_TRAVERSE_COUNT,
+                    normalizePlayerSeekBarClickTraverseCount(value),
+                ).apply()
+
     var playerAutoResumeEnabled: Boolean
         get() = prefs.getBoolean(KEY_PLAYER_AUTO_RESUME_ENABLED, true)
         set(value) = prefs.edit().putBoolean(KEY_PLAYER_AUTO_RESUME_ENABLED, value).apply()
@@ -710,11 +721,8 @@ class AppPrefs(context: Context) {
         set(value) = prefs.edit().putBoolean(KEY_PLAYER_PERSISTENT_CLOCK, value).apply()
 
     var playerTouchGesturesEnabled: Boolean
-        get() {
-            if (!prefs.contains(KEY_PLAYER_TOUCH_GESTURES_ENABLED)) return defaultPlayerTouchGesturesEnabled
-            return prefs.getBoolean(KEY_PLAYER_TOUCH_GESTURES_ENABLED, defaultPlayerTouchGesturesEnabled)
-        }
-        set(value) = prefs.edit().putBoolean(KEY_PLAYER_TOUCH_GESTURES_ENABLED, value).apply()
+        get() = false
+        set(_) = Unit
 
     var playerVideoShotPreviewSize: String
         get() {
@@ -982,6 +990,10 @@ class AppPrefs(context: Context) {
         return if (PLAYER_HOLD_SCRUB_SECONDS_OPTIONS.contains(value)) value else PLAYER_HOLD_SCRUB_SECONDS_DEFAULT
     }
 
+    private fun normalizePlayerSeekBarClickTraverseCount(count: Int): Int {
+        return if (PLAYER_SEEK_BAR_CLICK_TRAVERSE_COUNT_OPTIONS.contains(count)) count else PLAYER_SEEK_BAR_CLICK_TRAVERSE_COUNT_DEFAULT
+    }
+
     companion object {
         const val STARTUP_PAGE_HOME = "home"
         const val STARTUP_PAGE_CATEGORY = "category"
@@ -1081,6 +1093,7 @@ class AppPrefs(context: Context) {
         private const val KEY_PLAYER_HOLD_SEEK_MODE = "player_hold_seek_mode"
         private const val KEY_PLAYER_HOLD_SCRUB_TRAVERSE_SECONDS = "player_hold_scrub_traverse_seconds"
         private const val KEY_PLAYER_HOLD_SCRUB_FIXED_STEP_SECONDS = "player_hold_scrub_fixed_step_seconds"
+        private const val KEY_PLAYER_SEEK_BAR_CLICK_TRAVERSE_COUNT = "player_seek_bar_click_traverse_count"
         private const val KEY_PLAYER_AUTO_RESUME_ENABLED = "player_auto_resume_enabled"
         private const val KEY_PLAYER_AUTO_SKIP_SEGMENTS_ENABLED = "player_auto_skip_segments_enabled"
         private const val KEY_PLAYER_AUTO_SKIP_SERVER_BASE_URL = "player_auto_skip_server_base_url"
@@ -1098,7 +1111,6 @@ class AppPrefs(context: Context) {
         private const val KEY_PLAYER_TOGGLE_PLAY_STATE_SHOW_OSD = "player_toggle_play_state_show_osd"
         private const val KEY_PLAYER_PERSISTENT_BOTTOM_PROGRESS = "player_persistent_bottom_progress"
         private const val KEY_PLAYER_PERSISTENT_CLOCK = "player_persistent_clock"
-        private const val KEY_PLAYER_TOUCH_GESTURES_ENABLED = "player_touch_gestures_enabled"
         private const val KEY_PLAYER_VIDEOSHOT_PREVIEW_SIZE = "player_videoshot_preview_size"
         private const val KEY_PLAYER_AUDIO_BALANCE_LEVEL = "player_audio_balance_level"
         private const val KEY_PLAYER_PLAYBACK_MODE = "player_playback_mode"
@@ -1238,6 +1250,9 @@ class AppPrefs(context: Context) {
         const val PLAYER_HOLD_SEEK_SPEED_DEFAULT = 3.0f
         val PLAYER_HOLD_SCRUB_SECONDS_OPTIONS: Set<Int> = linkedSetOf(5, 8, 10, 12, 15, 17, 20, 22, 25, 27, 30)
         const val PLAYER_HOLD_SCRUB_SECONDS_DEFAULT = 10
+
+        val PLAYER_SEEK_BAR_CLICK_TRAVERSE_COUNT_OPTIONS: Set<Int> = linkedSetOf(10, 15, 20, 25, 30, 40, 50, 60, 80, 100)
+        const val PLAYER_SEEK_BAR_CLICK_TRAVERSE_COUNT_DEFAULT = 20
 
         const val DEFAULT_PLAYER_AUTO_SKIP_SERVER_BASE_URL = "https://bsbsb.top"
         const val FALLBACK_PLAYER_AUTO_SKIP_SERVER_BASE_URL = "http://154.222.28.109"

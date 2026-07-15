@@ -1273,6 +1273,10 @@ class SettingsInteractionHandler(
                 showPlayerHoldScrubFixedStepSecondsDialog(sectionIndex = state.currentSectionIndex, focusId = entry.id)
             }
 
+            SettingId.PlayerSeekBarClickTraverseCount -> {
+                showPlayerSeekBarClickTraverseCountDialog(sectionIndex = state.currentSectionIndex, focusId = entry.id)
+            }
+
             SettingId.PlayerAutoResumeEnabled -> {
                 prefs.playerAutoResumeEnabled = !prefs.playerAutoResumeEnabled
                 renderer.refreshSection(entry.id)
@@ -1481,12 +1485,6 @@ class SettingsInteractionHandler(
 
             SettingId.PlayerPersistentClockEnabled -> {
                 prefs.playerPersistentClockEnabled = !prefs.playerPersistentClockEnabled
-                renderer.refreshSection(entry.id)
-            }
-
-            SettingId.PlayerTouchGesturesEnabled -> {
-                prefs.playerTouchGesturesEnabled = !prefs.playerTouchGesturesEnabled
-                AppToast.show(activity, "触摸手势：${if (prefs.playerTouchGesturesEnabled) "开" else "关"}")
                 renderer.refreshSection(entry.id)
             }
 
@@ -2504,6 +2502,22 @@ class SettingsInteractionHandler(
             focusId = focusId,
         ) { value ->
             prefs.playerHoldScrubFixedStepSeconds = value
+        }
+    }
+
+    private fun showPlayerSeekBarClickTraverseCountDialog(sectionIndex: Int, focusId: SettingId) {
+        val prefs = BiliClient.prefs
+        val options = AppPrefs.PLAYER_SEEK_BAR_CLICK_TRAVERSE_COUNT_OPTIONS.toList()
+        showChoiceDialog(
+            title = "进度条右键拖完全片次数",
+            items = options.map(SettingsText::seekBarClickTraverseCountText),
+            current = SettingsText.seekBarClickTraverseCountText(prefs.playerSeekBarClickTraverseCount),
+        ) { selected ->
+            val value =
+                options.firstOrNull { SettingsText.seekBarClickTraverseCountText(it) == selected }
+                    ?: AppPrefs.PLAYER_SEEK_BAR_CLICK_TRAVERSE_COUNT_DEFAULT
+            prefs.playerSeekBarClickTraverseCount = value
+            renderer.showSection(sectionIndex, focusId = focusId)
         }
     }
 

@@ -159,6 +159,8 @@ object SettingsText {
 
     fun seekStepSecondsText(seconds: Int): String = "${seconds.coerceAtLeast(0)}秒"
 
+    fun seekBarClickTraverseCountText(count: Int): String = if (count > 0) "${count}次" else "关闭"
+
     fun holdSeekModeText(code: String): String =
         when (code) {
             blbl.cat3399.core.prefs.AppPrefs.PLAYER_HOLD_SEEK_MODE_SCRUB_FIXED_TIME -> "固定时间拖动进度条"

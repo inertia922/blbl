@@ -478,9 +478,15 @@ internal fun PlayerActivity.smartSeek(direction: Int, showControls: Boolean, hin
         noteUserInteraction()
     }
 
-    val step = smartSeekStepMs()
     val engine = player ?: return
     val duration = engine.duration.takeIf { it > 0 } ?: currentViewDurationMs
+    val step =
+        if (binding.seekProgress.isFocused && duration != null && duration > 0L) {
+            val count = BiliClient.prefs.playerSeekBarClickTraverseCount
+            if (count > 0) maxOf(1L, duration / count) else smartSeekStepMs()
+        } else {
+            smartSeekStepMs()
+        }
     if (duration == null || duration <= 0L) {
         seekRelative(step * direction)
         smartSeekTotalMs = if (continued) (smartSeekTotalMs + step) else step

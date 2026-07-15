@@ -63,6 +63,7 @@ internal object PlayerSettingKeys {
     const val DEBUG_INFO = "debug_info"
     const val PERSISTENT_BOTTOM_PROGRESS = "persistent_bottom_progress"
     const val PERSISTENT_CLOCK = "persistent_clock"
+    const val SEEK_BAR_CLICK_TRAVERSE_COUNT = "seek_bar_click_traverse_count"
 }
 
 internal enum class PlayerSettingsMenu {
@@ -405,6 +406,8 @@ internal fun PlayerActivity.handleSettingsItemClick(item: PlayerSettingsAdapter.
             refreshSettingsPanel()
         }
 
+        PlayerSettingKeys.SEEK_BAR_CLICK_TRAVERSE_COUNT -> showSeekBarClickTraverseCountDialog()
+
         else -> AppToast.show(this, "暂未实现：${item.title}")
     }
 }
@@ -504,6 +507,11 @@ private fun PlayerActivity.buildRootSettingsItems(
             PlayerSettingKeys.PERSISTENT_CLOCK,
             "常驻时间显示",
             BiliClient.prefs.playerPersistentClockEnabled.switchText(),
+        ),
+        settingItem(
+            PlayerSettingKeys.SEEK_BAR_CLICK_TRAVERSE_COUNT,
+            "拖完全片需按次数",
+            blbl.cat3399.feature.settings.SettingsText.seekBarClickTraverseCountText(BiliClient.prefs.playerSeekBarClickTraverseCount),
         ),
         settingItem(PlayerSettingKeys.PLAYER_ENGINE, "播放器内核", playerEngineSubtitle()),
         settingItem(PlayerSettingKeys.DEBUG_INFO, "调试信息", session.debugEnabled.switchText()),
@@ -1165,5 +1173,20 @@ internal fun PlayerActivity.showDanmakuAiShieldLevelDialog() {
             syncToGlobal = { danmakuAiShieldLevel = it },
             afterApplied = { reloadDanmakuForCurrentSession() },
         )
+    }
+}
+
+internal fun PlayerActivity.showSeekBarClickTraverseCountDialog() {
+    val prefs = BiliClient.prefs
+    val options = AppPrefs.PLAYER_SEEK_BAR_CLICK_TRAVERSE_COUNT_OPTIONS.toList()
+    val checked = options.indexOf(prefs.playerSeekBarClickTraverseCount).coerceAtLeast(0)
+    showSettingsChoiceDialog(
+        title = "拖完全片需按次数",
+        options = options,
+        checkedIndex = checked,
+        label = { blbl.cat3399.feature.settings.SettingsText.seekBarClickTraverseCountText(it) },
+    ) { picked ->
+        prefs.playerSeekBarClickTraverseCount = picked
+        refreshSettingsPanel()
     }
 }

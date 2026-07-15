@@ -299,6 +299,12 @@ class SettingsRenderer(
                         SettingsText.seekStepSecondsText(prefs.playerHoldScrubFixedStepSeconds),
                         null,
                     ),
+                    SettingEntry(
+                        SettingId.PlayerSeekBarClickTraverseCount,
+                        "进度条右键拖完全片次数",
+                        SettingsText.seekBarClickTraverseCountText(prefs.playerSeekBarClickTraverseCount),
+                        "光标移到进度条上时，按几次右键能拖完整个视频",
+                    ),
                     SettingEntry(SettingId.PlayerAutoResumeEnabled, "自动跳到上次播放位置", if (prefs.playerAutoResumeEnabled) "开" else "关", null),
                     SettingEntry(
                         SettingId.PlayerAutoSkipSegmentsEnabled,
@@ -361,12 +367,6 @@ class SettingsRenderer(
                         SettingId.PlayerPersistentClockEnabled,
                         "常驻时间显示",
                         if (prefs.playerPersistentClockEnabled) "开" else "关",
-                        null,
-                    ),
-                    SettingEntry(
-                        SettingId.PlayerTouchGesturesEnabled,
-                        "触摸手势",
-                        if (prefs.playerTouchGesturesEnabled) "开" else "关",
                         null,
                     ),
                     SettingEntry(

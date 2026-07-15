@@ -234,10 +234,6 @@ class MyHistoryFragment : Fragment(), MyTabSwitchFocusTarget, RefreshKeyHandler 
 
     private fun maybeTriggerInitialLoad() {
         if (initialLoadTriggered) return
-        if (adapter.itemCount != 0) {
-            initialLoadTriggered = true
-            return
-        }
         if (binding.swipeRefresh.isRefreshing) return
         binding.swipeRefresh.isRefreshing = true
         resetAndLoad()

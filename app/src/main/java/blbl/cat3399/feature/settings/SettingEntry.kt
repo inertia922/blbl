@@ -51,6 +51,7 @@ enum class SettingId(
     PlayerHoldSeekMode("player_hold_seek_mode"),
     PlayerHoldScrubTraverseSeconds("player_hold_scrub_traverse_seconds"),
     PlayerHoldScrubFixedStepSeconds("player_hold_scrub_fixed_step_seconds"),
+    PlayerSeekBarClickTraverseCount("player_seek_bar_click_traverse_count"),
     PlayerAutoResumeEnabled("player_auto_resume_enabled"),
     PlayerAutoSkipSegmentsEnabled("player_auto_skip_segments_enabled"),
     PlayerAutoSkipServerBaseUrl("player_auto_skip_server_base_url"),
@@ -77,7 +78,6 @@ enum class SettingId(
     PlayerTogglePlayStateShowOsd("player_toggle_play_state_show_osd"),
     PlayerPersistentBottomProgressEnabled("player_persistent_bottom_progress_enabled"),
     PlayerPersistentClockEnabled("player_persistent_clock_enabled"),
-    PlayerTouchGesturesEnabled("player_touch_gestures_enabled"),
     PlayerVideoShotPreviewSize("player_videoshot_preview_size"),
 
     // 弹幕设置
