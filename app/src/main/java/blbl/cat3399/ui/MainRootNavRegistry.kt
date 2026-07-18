@@ -11,7 +11,8 @@ import blbl.cat3399.feature.custom.CustomPageFragment
 import blbl.cat3399.feature.custom.CustomPageTabRegistry
 import blbl.cat3399.feature.dynamic.DynamicFragment
 import blbl.cat3399.feature.home.HomeFragment
-import blbl.cat3399.feature.my.MyFragment
+import blbl.cat3399.feature.my.MyHistoryFragment
+import blbl.cat3399.feature.my.SidebarFavFragment
 import blbl.cat3399.feature.search.SearchFragment
 
 data class RootNavSpec(
@@ -72,13 +73,22 @@ object MainRootNavRegistry {
                 fragmentFactory = { CustomPageFragment.newInstance() },
             ),
             RootNavSpec(
-                navId = SidebarNavAdapter.ID_MY,
-                key = "my",
-                titleRes = R.string.tab_my,
-                iconRes = R.drawable.ic_nav_my,
-                startupPageKey = AppPrefs.STARTUP_PAGE_MY,
-                matchesFragment = { it is MyFragment },
-                fragmentFactory = { MyFragment.newInstance() },
+                navId = SidebarNavAdapter.ID_HISTORY,
+                key = "history",
+                titleRes = R.string.tab_history,
+                iconRes = R.drawable.ic_nav_history,
+                isEnabled = { BiliClient.cookies.hasSessData() },
+                matchesFragment = { it is MyHistoryFragment },
+                fragmentFactory = { MyHistoryFragment() },
+            ),
+            RootNavSpec(
+                navId = SidebarNavAdapter.ID_FAV,
+                key = "fav",
+                titleRes = R.string.tab_fav,
+                iconRes = R.drawable.ic_nav_fav,
+                isEnabled = { BiliClient.cookies.hasSessData() },
+                matchesFragment = { it is SidebarFavFragment },
+                fragmentFactory = { SidebarFavFragment() },
             ),
         )
 

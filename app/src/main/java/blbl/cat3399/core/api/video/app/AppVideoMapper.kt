@@ -191,7 +191,11 @@ internal class AppVideoMapper(
             ownerMid = args.optLong("up_id", 0L).takeIf { it > 0L },
             view = parseCountText(obj.optString("cover_left_text_1", "")),
             danmaku = parseCountText(obj.optString("cover_left_text_2", "")),
-            pubDate = null,
+            pubDate = obj.optLong("pubdate").takeIf { it > 0 }
+                ?: args.optLong("pubdate").takeIf { it > 0 }
+                ?: playerArgs.optLong("pubdate").takeIf { it > 0 }
+                ?: obj.optLong("ctime").takeIf { it > 0 }
+                ?: args.optLong("ctime").takeIf { it > 0 },
             pubDateText = null,
             trackId = obj.optString("track_id", obj.optString("trackid", "")).trim().takeIf { it.isNotBlank() }
                 ?: obj.optInt("idx", -1).takeIf { it >= 0 }?.let { "app-idx:$it" },

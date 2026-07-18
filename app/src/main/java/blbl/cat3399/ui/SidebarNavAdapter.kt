@@ -133,5 +133,7 @@ class SidebarNavAdapter(
         const val ID_LIVE = 4
         const val ID_MY = 5
         const val ID_CUSTOM = 6
+        const val ID_HISTORY = 7
+        const val ID_FAV = 8
     }
 }

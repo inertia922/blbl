@@ -16,6 +16,7 @@ internal object BiliClientAppVideoHttpTransport : AppVideoHttpTransport {
                 mapOf(
                     "idx" to idx.coerceAtLeast(0).toString(),
                     "access_key" to session.accessKey,
+                    "buvid" to BiliClient.prefs.deviceBuvid,
                 ),
             )
         val url = BiliClient.withQuery(FEED_INDEX_URL, params)

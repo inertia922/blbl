@@ -27,7 +27,7 @@ object HomeTabs {
             HomeTabSpec(KEY_POPULAR, R.string.tab_popular) { VideoGridFragment.newPopular() },
             HomeTabSpec(KEY_BANGUMI, R.string.tab_bangumi) { PgcRecommendGridFragment.newBangumi() },
             HomeTabSpec(KEY_CINEMA, R.string.tab_cinema) { PgcRecommendGridFragment.newCinema() },
-            HomeTabSpec(KEY_LIVE, R.string.tab_live) { LiveGridFragment.newRecommend() },
+            HomeTabSpec(KEY_LIVE, R.string.tab_live) { LiveGridFragment.newFollowing() },
         )
 
     fun visibleTabs(prefs: AppPrefs): List<HomeTabSpec> = filterVisible(all, prefs.mainHomeVisibleTabs)
