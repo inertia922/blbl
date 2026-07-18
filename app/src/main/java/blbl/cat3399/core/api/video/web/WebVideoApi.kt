@@ -100,6 +100,15 @@ internal class WebVideoApi(
                 "fresh_type" to "4",
                 "homepage_ver" to "1",
                 "brush" to if (request.isRefresh) "1" else "0",
+                "platform" to "pc",
+                "web_location" to "1430650",
+                "timezone_offset" to "-480",
+                "y_num" to "4",
+                "column" to "5",
+                "from_spm_id" to "333.1007",
+                "drag" to "0",
+                "version" to "1",
+                "cold" to "0",
             )
         if (request.lastShowList.isNotBlank()) {
             params["last_showlist"] = request.lastShowList

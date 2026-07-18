@@ -16,6 +16,8 @@ internal object BiliClientAppVideoHttpTransport : AppVideoHttpTransport {
                 mapOf(
                     "idx" to idx.coerceAtLeast(0).toString(),
                     "access_key" to session.accessKey,
+                    "pull" to "true",
+                    "flush" to "5",
                     "buvid" to BiliClient.prefs.deviceBuvid,
                 ),
             )
