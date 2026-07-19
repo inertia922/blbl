@@ -801,7 +801,7 @@ class PlayerActivity : BaseActivity() {
             playbackSpeed = prefs.playerSpeed,
             preferCodec = prefs.playerPreferredCodec,
             preferAudioId = prefs.playerPreferredAudioId,
-            preferredQn = prefs.playerPreferredQn,
+            preferredQn = if (isPgcLikePlayback()) prefs.playerPreferredQnPgc else prefs.playerPreferredQn,
             targetQn = 0,
             playbackModeOverride = null,
             subtitleEnabled = prefs.subtitleEnabledDefault,
