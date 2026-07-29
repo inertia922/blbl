@@ -1614,28 +1614,28 @@ class PlayerActivity : BaseActivity() {
 
             KeyEvent.KEYCODE_DPAD_UP -> {
                 if (isSidePanelVisible()) return super.dispatchKeyEvent(event)
-                // TV-style shortcut: when OSD is hidden, UP directly opens the playlist (video list)
-                // instead of first bringing up the OSD.
-                if (osdMode == OsdMode.Hidden) {
-                    if (showListPanelFromShortcut()) return true
+                if (binding.seekProgress.isFocused) {
+                    setControlsVisible(true)
+                    focusFirstControl()
+                    return true
                 }
-                setControlsVisible(true)
-                if (!binding.seekProgress.isFocused) {
-                    focusSeekBar()
+                // UP key: show next-episode options (down-key OSD target: next episode, speed, etc.)
+                if (osdMode == OsdMode.Hidden) {
+                    setControlsVisible(true)
+                    focusDownKeyOsdTargetControl()
                     return true
                 }
             }
 
             KeyEvent.KEYCODE_DPAD_DOWN -> {
                 if (isSidePanelVisible()) return super.dispatchKeyEvent(event)
-                if (binding.seekProgress.isFocused) {
-                    setControlsVisible(true)
-                    focusFirstControl()
-                    return true
-                }
+                // DOWN key: open video list (playlist)
                 if (osdMode == OsdMode.Hidden) {
-                    setControlsVisible(true)
-                    focusDownKeyOsdTargetControl()
+                    if (showListPanelFromShortcut()) return true
+                }
+                setControlsVisible(true)
+                if (!binding.seekProgress.isFocused) {
+                    focusSeekBar()
                     return true
                 }
             }

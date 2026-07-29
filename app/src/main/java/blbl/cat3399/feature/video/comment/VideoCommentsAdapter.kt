@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.view.doOnPreDraw
 import androidx.recyclerview.widget.RecyclerView
 import blbl.cat3399.R
 import blbl.cat3399.core.emote.EmoteSpannable
@@ -114,7 +115,9 @@ internal class VideoCommentsAdapter(
             boundRpid = item.rpid
             val ctx = binding.root.context
             val previewUserColor = ContextCompat.getColor(ctx, R.color.blbl_blue)
-            binding.root.setCardBackgroundColor(ContextCompat.getColor(ctx, android.R.color.black))
+            binding.root.setCardBackgroundColor(
+                blbl.cat3399.core.ui.ThemeColor.resolve(ctx, blbl.cat3399.R.attr.blblPageBackdrop, android.R.color.black)
+            )
 
             binding.tvContextTag.text = item.contextTag.orEmpty()
             binding.tvContextTag.visibility = if (item.contextTag.isNullOrBlank()) View.GONE else View.VISIBLE
@@ -188,10 +191,10 @@ internal class VideoCommentsAdapter(
             binding.tvExpand.visibility = View.GONE
             if (isExpanded) return
 
-            // Only show "展开" when we are actually ellipsized at runtime.
-            // Use post() to wait for the layout pass to finish.
-            binding.tvMessage.post {
-                if (boundRpid != itemRpid) return@post
+            // Use doOnPreDraw to ensure layout is complete before checking ellipsis.
+            // View.post() is unreliable here — layout may not be finished yet.
+            binding.tvMessage.doOnPreDraw {
+                if (boundRpid != itemRpid) return@doOnPreDraw
                 val shouldShow = isMessageEllipsized(binding.tvMessage)
                 binding.tvExpand.visibility = if (shouldShow) View.VISIBLE else View.GONE
             }

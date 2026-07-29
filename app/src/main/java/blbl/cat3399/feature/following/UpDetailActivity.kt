@@ -106,6 +106,7 @@ class UpDetailActivity : BaseActivity() {
     private var archiveGridController: DpadGridController? = null
     private var focusListener: android.view.ViewTreeObserver.OnGlobalFocusChangeListener? = null
     private var didRequestInitialTab0Focus: Boolean = false
+    private var archiveSortOrder = "pubdate" // "pubdate" = 按发布时间, "click" = 按播放量
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -129,6 +130,7 @@ class UpDetailActivity : BaseActivity() {
         setupAppBar()
         setupAdapters()
         setupTabs()
+        setupSortButton()
 
         binding.recycler.setHasFixedSize(true)
         (binding.recycler.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
@@ -387,6 +389,16 @@ class UpDetailActivity : BaseActivity() {
         }
     }
 
+    private fun setupSortButton() {
+        binding.btnSortOrder.setOnClickListener {
+            val next = if (archiveSortOrder == "pubdate") "click" else "pubdate"
+            archiveSortOrder = next
+            binding.btnSortOrder.text =
+                if (next == "pubdate") "按发布时间排序" else "按播放量排序"
+            resetAndLoadArchive()
+        }
+    }
+
     private fun scheduleInitialTab0Focus() {
         // Mirror VideoDetailActivity: post a single initial focus request after the first layout,
         // so focus lands on the primary entry control (Tab0) instead of the header button.
@@ -403,6 +415,7 @@ class UpDetailActivity : BaseActivity() {
     }
 
     private fun switchTab(next: UpTab) {
+        binding.llSortBar.isVisible = (next == UpTab.ARCHIVE)
         if (currentTab == next) return
         currentTab = next
         // Tab switching can be triggered by focus changes while RecyclerView is recycling children
@@ -676,6 +689,7 @@ class UpDetailActivity : BaseActivity() {
                         mid = mid,
                         pn = targetPage,
                         ps = 30,
+                        order = archiveSortOrder,
                     )
                 if (token != archiveRequestToken) return@launch
 

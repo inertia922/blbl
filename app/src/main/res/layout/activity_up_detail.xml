@@ -230,6 +230,28 @@
             android:focusable="false"
             app:tabPaddingBottom="0dp"
             app:tabPaddingTop="2dp" />
+
+        <LinearLayout
+            android:id="@+id/ll_sort_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="4dp"
+            android:gravity="end"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_sort_order"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:text="按发布时间排序"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:focusable="true" />
+        </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

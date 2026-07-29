@@ -107,17 +107,17 @@ class AppPrefs(context: Context) {
 
     var followingListOrder: String
         get() {
-            val raw = prefs.getString(KEY_FOLLOWING_LIST_ORDER, FOLLOWING_LIST_ORDER_FOLLOW_TIME) ?: FOLLOWING_LIST_ORDER_FOLLOW_TIME
+            val raw = prefs.getString(KEY_FOLLOWING_LIST_ORDER, FOLLOWING_LIST_ORDER_RECENT_VISIT) ?: FOLLOWING_LIST_ORDER_RECENT_VISIT
             return when (raw.trim()) {
-                FOLLOWING_LIST_ORDER_RECENT_VISIT -> FOLLOWING_LIST_ORDER_RECENT_VISIT
-                else -> FOLLOWING_LIST_ORDER_FOLLOW_TIME
+                FOLLOWING_LIST_ORDER_FOLLOW_TIME -> FOLLOWING_LIST_ORDER_FOLLOW_TIME
+                else -> FOLLOWING_LIST_ORDER_RECENT_VISIT
             }
         }
         set(value) {
             val normalized =
                 when (value.trim()) {
-                    FOLLOWING_LIST_ORDER_RECENT_VISIT -> FOLLOWING_LIST_ORDER_RECENT_VISIT
-                    else -> FOLLOWING_LIST_ORDER_FOLLOW_TIME
+                    FOLLOWING_LIST_ORDER_FOLLOW_TIME -> FOLLOWING_LIST_ORDER_FOLLOW_TIME
+                    else -> FOLLOWING_LIST_ORDER_RECENT_VISIT
                 }
             prefs.edit().putString(KEY_FOLLOWING_LIST_ORDER, normalized).apply()
         }
@@ -1024,8 +1024,8 @@ class AppPrefs(context: Context) {
         const val MAIN_BACK_FOCUS_SCHEME_C = "C"
 
         const val VIDEO_CARD_LONG_PRESS_ACTION_MANUAL = "manual"
-        const val VIDEO_CARD_LONG_PRESS_ACTION_WATCH_LATER = "watch_later"
-        const val VIDEO_CARD_LONG_PRESS_ACTION_OPEN_DETAIL = "open_detail"
+        const val VIDEO_CARD_LONG_PRESS_ACTION_VIDEO_DISLIKE = "video_dislike"
+        const val VIDEO_CARD_LONG_PRESS_ACTION_UP_DISLIKE = "up_dislike"
         const val VIDEO_CARD_LONG_PRESS_ACTION_OPEN_UP = "open_up"
         const val VIDEO_CARD_LONG_PRESS_ACTION_DISMISS = "dismiss"
 
@@ -1205,8 +1205,8 @@ class AppPrefs(context: Context) {
 
         fun normalizeVideoCardLongPressAction(value: String?): String {
             return when (value?.trim()) {
-                VIDEO_CARD_LONG_PRESS_ACTION_WATCH_LATER -> VIDEO_CARD_LONG_PRESS_ACTION_WATCH_LATER
-                VIDEO_CARD_LONG_PRESS_ACTION_OPEN_DETAIL -> VIDEO_CARD_LONG_PRESS_ACTION_OPEN_DETAIL
+                VIDEO_CARD_LONG_PRESS_ACTION_VIDEO_DISLIKE -> VIDEO_CARD_LONG_PRESS_ACTION_VIDEO_DISLIKE
+                VIDEO_CARD_LONG_PRESS_ACTION_UP_DISLIKE -> VIDEO_CARD_LONG_PRESS_ACTION_UP_DISLIKE
                 VIDEO_CARD_LONG_PRESS_ACTION_OPEN_UP -> VIDEO_CARD_LONG_PRESS_ACTION_OPEN_UP
                 VIDEO_CARD_LONG_PRESS_ACTION_DISMISS -> VIDEO_CARD_LONG_PRESS_ACTION_DISMISS
                 else -> VIDEO_CARD_LONG_PRESS_ACTION_MANUAL
@@ -1282,13 +1282,11 @@ class AppPrefs(context: Context) {
 
         val DEFAULT_PLAYER_OSD_BUTTONS: List<String> =
             listOf(
+                PLAYER_OSD_BTN_PREV,
                 PLAYER_OSD_BTN_PLAY_PAUSE,
                 PLAYER_OSD_BTN_NEXT,
-                PLAYER_OSD_BTN_SUBTITLE,
                 PLAYER_OSD_BTN_DANMAKU,
                 PLAYER_OSD_BTN_COMMENTS,
-                PLAYER_OSD_BTN_DETAIL,
-                PLAYER_OSD_BTN_UP,
                 PLAYER_OSD_BTN_LIST_PANEL,
                 PLAYER_OSD_BTN_ADVANCED,
             )

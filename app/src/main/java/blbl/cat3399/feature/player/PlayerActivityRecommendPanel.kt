@@ -32,7 +32,8 @@ internal fun PlayerActivity.initBottomCardPanel() {
 
     binding.tabPageList.setOnClickListener { selectBottomPanelKind(PlayerVideoListKind.PAGE, requestFocus = true) }
     binding.tabPartsList.setOnClickListener { selectBottomPanelKind(PlayerVideoListKind.PARTS, requestFocus = true) }
-    binding.tabRecommendList.setOnClickListener { selectBottomPanelKind(PlayerVideoListKind.RECOMMEND, requestFocus = true) }
+    // "推荐" tab is no longer shown — it's not convenient for TV navigation.
+    binding.tabRecommendList.visibility = View.GONE
 
     fun switchTabOnFocus(kind: PlayerVideoListKind) {
         if (!isBottomCardPanelVisible()) return
@@ -47,11 +48,9 @@ internal fun PlayerActivity.initBottomCardPanel() {
     binding.tabPartsList.setOnFocusChangeListener { _, hasFocus ->
         if (hasFocus) switchTabOnFocus(PlayerVideoListKind.PARTS)
     }
-    binding.tabRecommendList.setOnFocusChangeListener { _, hasFocus ->
-        if (hasFocus) switchTabOnFocus(PlayerVideoListKind.RECOMMEND)
-    }
+    // RECOMMEND tab is hidden — removed its focus listener.
 
-    listOf(binding.tabPageList, binding.tabPartsList, binding.tabRecommendList).forEach { tab ->
+    listOf(binding.tabPageList, binding.tabPartsList).forEach { tab ->
         tab.setOnKeyListener { _, keyCode, event ->
             if (!isBottomCardPanelVisible()) return@setOnKeyListener false
             if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
@@ -241,12 +240,12 @@ private fun PlayerActivity.syncBottomPanelTabUi(kind: PlayerVideoListKind) {
 }
 
 private fun PlayerActivity.preferredListPanelKindForPlaybackMode(): PlayerVideoListKind {
+    // "推荐" tab is removed — map RECOMMEND modes to PARTS or PAGE.
     return when (resolvedPlaybackMode()) {
-        AppPrefs.PLAYER_PLAYBACK_MODE_RECOMMEND -> PlayerVideoListKind.RECOMMEND
+        AppPrefs.PLAYER_PLAYBACK_MODE_RECOMMEND -> PlayerVideoListKind.PARTS
         AppPrefs.PLAYER_PLAYBACK_MODE_PARTS_LIST_THEN_RECOMMEND ->
             when {
                 partsListItems.isNotEmpty() || partsListFetchJob?.isActive == true -> PlayerVideoListKind.PARTS
-                currentBvid.isNotBlank() -> PlayerVideoListKind.RECOMMEND
                 else -> PlayerVideoListKind.PARTS
             }
         AppPrefs.PLAYER_PLAYBACK_MODE_PARTS_LIST -> PlayerVideoListKind.PARTS
@@ -259,7 +258,7 @@ private fun PlayerActivity.preferredListPanelKindForShortcutTarget(target: Playe
         PlayerCustomShortcutOpenVideoListTarget.AUTO -> preferredListPanelKindForPlaybackMode()
         PlayerCustomShortcutOpenVideoListTarget.PAGE -> PlayerVideoListKind.PAGE
         PlayerCustomShortcutOpenVideoListTarget.PARTS -> PlayerVideoListKind.PARTS
-        PlayerCustomShortcutOpenVideoListTarget.RECOMMEND -> PlayerVideoListKind.RECOMMEND
+        PlayerCustomShortcutOpenVideoListTarget.RECOMMEND -> PlayerVideoListKind.PARTS
     }
 }
 

@@ -255,12 +255,6 @@ class SettingsRenderer(
                         SettingsText.mainHomeVisibleTabsText(activity, prefs.mainHomeVisibleTabs),
                         null,
                     ),
-                    SettingEntry(
-                        SettingId.MainLiveVisibleTabs,
-                        "直播页显示页面",
-                        SettingsText.mainLiveVisibleTabsText(prefs.mainLiveVisibleTabs),
-                        null,
-                    ),
                 )
 
             "播放设置" ->

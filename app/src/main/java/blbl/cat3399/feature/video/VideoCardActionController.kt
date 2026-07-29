@@ -47,8 +47,8 @@ class VideoCardActionController(
         position: Int,
     ): List<VideoCardQuickAction> {
         return listOf(
-            VideoCardQuickAction.watchLater(context.getString(R.string.video_card_action_watch_later)),
-            VideoCardQuickAction.openDetail(context.getString(R.string.video_card_action_open_detail)),
+            VideoCardQuickAction.videoDislike(context.getString(R.string.video_card_action_video_dislike)),
+            VideoCardQuickAction.upDislike(context.getString(R.string.video_card_action_up_dislike)),
             VideoCardQuickAction.openUp(context.getString(R.string.video_card_action_open_up)),
             VideoCardQuickAction.dismiss(context.getString(dismissActionLabelRes())),
         )
@@ -60,49 +60,47 @@ class VideoCardActionController(
         action: VideoCardQuickAction,
     ) {
         when (action.id) {
-            VideoCardQuickActionId.WATCH_LATER -> addToWatchLater(card)
-            VideoCardQuickActionId.OPEN_DETAIL -> openDetail(card, position)
+            VideoCardQuickActionId.VIDEO_DISLIKE -> dislikeVideo(card)
+            VideoCardQuickActionId.UP_DISLIKE -> dislikeUp(card)
             VideoCardQuickActionId.OPEN_UP -> onOpenUp(card)
             VideoCardQuickActionId.DISMISS -> dismissCard(card)
         }
     }
 
-    private fun openDetail(
-        card: VideoCard,
-        position: Int,
-    ) {
-        if (!card.hasVideoDetailIdentity()) {
-            AppToast.show(context, context.getString(R.string.video_card_action_open_detail_unsupported))
-            return
-        }
-        onOpenDetail(card, position)
-    }
-
-    private fun addToWatchLater(card: VideoCard) {
-        val safeBvid = card.bvid.trim()
-        val safeAid = card.aid?.takeIf { it > 0L }
-        if (safeBvid.isBlank() && safeAid == null) {
-            AppToast.show(context, context.getString(R.string.video_card_action_missing_video_id))
-            return
-        }
-        val actionKey = buildActionKey(card = card, suffix = "watch_later")
+    private fun dislikeVideo(card: VideoCard) {
+        val stableKey = card.stableKey()
+        val actionKey = buildActionKey(card = card, suffix = "dislike_video")
         if (!markInFlight(actionKey)) return
-
+        VideoCardVisibilityFilter.hide(stableKey)
+        onCardRemoved(stableKey)
+        AppToast.show(context, context.getString(R.string.video_card_action_video_dislike_done))
         scope.launch {
             try {
-                withContext(Dispatchers.IO) {
-                    BiliApi.toViewAdd(
-                        bvid = safeBvid.takeIf { it.isNotBlank() },
-                        aid = safeAid,
-                    )
-                }
-                AppToast.show(context, context.getString(R.string.video_card_action_watch_later_done))
+                withContext(Dispatchers.IO) { BiliApi.videoFeedbackDislike(card) }
             } catch (t: Throwable) {
                 if (t is CancellationException) throw t
-                AppToast.show(context, errorMessage(t))
-            } finally {
-                clearInFlight(actionKey)
-            }
+            } finally { clearInFlight(actionKey) }
+        }
+    }
+
+    private fun dislikeUp(card: VideoCard) {
+        val stableKey = card.stableKey()
+        val upMid = card.ownerMid?.takeIf { it > 0L }
+        if (upMid == null) {
+            AppToast.show(context, context.getString(R.string.video_card_action_up_dislike_unavailable))
+            return
+        }
+        val actionKey = buildActionKey(card = card, suffix = "dislike_up")
+        if (!markInFlight(actionKey)) return
+        VideoCardVisibilityFilter.hide(stableKey)
+        onCardRemoved(stableKey)
+        AppToast.show(context, context.getString(R.string.video_card_action_up_dislike_done))
+        scope.launch {
+            try {
+                withContext(Dispatchers.IO) { BiliApi.modifyRelation(fid = upMid, act = 5) }
+            } catch (t: Throwable) {
+                if (t is CancellationException) throw t
+            } finally { clearInFlight(actionKey) }
         }
     }
 

@@ -53,7 +53,6 @@ import blbl.cat3399.feature.category.CategoryZones
 import blbl.cat3399.feature.custom.CustomPageSearchSourceKind
 import blbl.cat3399.feature.custom.CustomPageTabRegistry
 import blbl.cat3399.feature.home.HomeTabs
-import blbl.cat3399.feature.live.LiveFragment
 import blbl.cat3399.feature.my.MyTabs
 import blbl.cat3399.ui.MainRootNavRegistry
 import blbl.cat3399.ui.MainActivity
@@ -810,8 +809,8 @@ class SettingsInteractionHandler(
                 val options =
                     listOf(
                         AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_MANUAL to "手动选择",
-                        AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_WATCH_LATER to "添加到稍后再看",
-                        AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_OPEN_DETAIL to "进入详情页",
+                        AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_VIDEO_DISLIKE to "对视频不感兴趣",
+                        AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_UP_DISLIKE to "对UP主不感兴趣",
                         AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_OPEN_UP to "进入UP主页",
                         AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_DISMISS to "不感兴趣",
                     )
@@ -881,16 +880,6 @@ class SettingsInteractionHandler(
                     options = HomeTabs.all.map { it.key to activity.getString(it.titleRes) },
                     selectedKeys = prefs.mainHomeVisibleTabs,
                 ) { prefs.mainHomeVisibleTabs = it }
-            }
-
-            SettingId.MainLiveVisibleTabs -> {
-                showVisibleTabsDialog(
-                    sectionIndex = state.currentSectionIndex,
-                    focusId = entry.id,
-                    title = "直播页显示页面",
-                    options = LiveFragment.LiveTabs.all.map { it.key to it.title },
-                    selectedKeys = prefs.mainLiveVisibleTabs,
-                ) { prefs.mainLiveVisibleTabs = it }
             }
 
             SettingId.UiScaleFactor -> {

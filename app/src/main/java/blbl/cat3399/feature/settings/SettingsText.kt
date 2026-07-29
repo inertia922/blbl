@@ -12,7 +12,6 @@ import blbl.cat3399.core.prefs.PlayerPlaybackModes
 import blbl.cat3399.feature.category.CategoryZones
 import blbl.cat3399.feature.custom.CustomPageTabRegistry
 import blbl.cat3399.feature.home.HomeTabs
-import blbl.cat3399.feature.live.LiveFragment
 import blbl.cat3399.feature.my.MyTabs
 import blbl.cat3399.ui.MainRootNavRegistry
 import java.util.Locale
@@ -97,13 +96,6 @@ object SettingsText {
         )
     }
 
-    fun mainLiveVisibleTabsText(selectedKeys: List<String>): String {
-        return visibleTabsText(
-            options = LiveFragment.LiveTabs.all.map { it.key to it.title },
-            selectedKeys = selectedKeys,
-        )
-    }
-
     private fun visibleTabsText(options: List<Pair<String, String>>, selectedKeys: List<String>): String {
         val selected = selectedKeys.takeIf { it.isNotEmpty() }?.toSet()
         val labels =
@@ -126,8 +118,8 @@ object SettingsText {
 
     fun videoCardLongPressActionText(prefValue: String): String =
         when (prefValue) {
-            blbl.cat3399.core.prefs.AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_WATCH_LATER -> "添加到稍后再看"
-            blbl.cat3399.core.prefs.AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_OPEN_DETAIL -> "进入详情页"
+            blbl.cat3399.core.prefs.AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_VIDEO_DISLIKE -> "对视频不感兴趣"
+            blbl.cat3399.core.prefs.AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_UP_DISLIKE -> "对UP主不感兴趣"
             blbl.cat3399.core.prefs.AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_OPEN_UP -> "进入UP主页"
             blbl.cat3399.core.prefs.AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_DISMISS -> "不感兴趣"
             else -> "手动选择"

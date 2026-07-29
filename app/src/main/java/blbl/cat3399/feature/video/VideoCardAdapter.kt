@@ -164,16 +164,16 @@ class VideoCardAdapter(
                 )
             }
 
-            VideoCardConfiguredLongPressAction.WATCH_LATER -> {
+            VideoCardConfiguredLongPressAction.VIDEO_DISLIKE -> {
                 delegate.manualActions(item, position)
-                    .firstOrNull { it.id == VideoCardQuickActionId.WATCH_LATER }
+                    .firstOrNull { it.id == VideoCardQuickActionId.VIDEO_DISLIKE }
                     ?.let { delegate.onActionSelected(item, position, it) }
                 true
             }
 
-            VideoCardConfiguredLongPressAction.OPEN_DETAIL -> {
+            VideoCardConfiguredLongPressAction.UP_DISLIKE -> {
                 delegate.manualActions(item, position)
-                    .firstOrNull { it.id == VideoCardQuickActionId.OPEN_DETAIL }
+                    .firstOrNull { it.id == VideoCardQuickActionId.UP_DISLIKE }
                     ?.let { delegate.onActionSelected(item, position, it) }
                 true
             }
@@ -473,15 +473,15 @@ class VideoCardAdapter(
 
             val actionButtons =
                 listOf(
-                    binding.btnActionWatchLater,
-                    binding.btnActionDetail,
+                    binding.btnActionVideoDislike,
+                    binding.btnActionUpDislike,
                     binding.btnActionUp,
                     binding.btnActionDismiss,
                 )
             val actionIcons =
                 listOf(
-                    binding.ivActionWatchLater,
-                    binding.ivActionDetail,
+                    binding.ivActionVideoDislike,
+                    binding.ivActionUpDislike,
                     binding.ivActionUp,
                     binding.ivActionDismiss,
                 )

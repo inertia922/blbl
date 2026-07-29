@@ -442,19 +442,17 @@ internal fun PlayerActivity.beginKeySeekPending(keyCode: Int, direction: Int, sh
             delay(timeoutMs)
             if (keySeekPendingKeyCode != keyCode || keySeekPendingDirection != direction) return@launch
             if (holdSeekJob != null) return@launch
-            if (direction < 0) {
-                // Long-press LEFT: always use preview-scrub rewind (independent of hold-seek mode setting).
-                startHoldScrub(direction = direction, showControls = showControls)
-            } else {
-                startHoldSeek(direction = direction, showControls = showControls)
-            }
+            // Long-press LEFT/RIGHT: both use 3x speed seek.
+            // Preview-scrub (progress bar navigation) is now only via focusing the seek bar or short taps.
+            startHoldSeek(direction = direction, showControls = showControls)
             // Once we enter hold, a later ACTION_UP should only stop the hold (no step seek).
             clearKeySeekPending()
         }
 }
 
 internal fun PlayerActivity.holdSeekUsesProgressPreview(direction: Int): Boolean {
-    if (direction < 0) return true
+    // Preview-scrub is only used when the seek bar itself is focused.
+    // Long-press LEFT/RIGHT always use speed seek (see beginKeySeekPending).
     return when (BiliClient.prefs.playerHoldSeekMode) {
         AppPrefs.PLAYER_HOLD_SEEK_MODE_SCRUB,
         AppPrefs.PLAYER_HOLD_SEEK_MODE_SCRUB_FIXED_TIME,

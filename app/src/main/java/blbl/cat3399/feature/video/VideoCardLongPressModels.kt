@@ -7,8 +7,8 @@ import blbl.cat3399.core.prefs.AppPrefs
 
 enum class VideoCardConfiguredLongPressAction {
     MANUAL,
-    WATCH_LATER,
-    OPEN_DETAIL,
+    VIDEO_DISLIKE,
+    UP_DISLIKE,
     OPEN_UP,
     DISMISS,
     ;
@@ -16,8 +16,8 @@ enum class VideoCardConfiguredLongPressAction {
     companion object {
         fun fromPref(value: String): VideoCardConfiguredLongPressAction {
             return when (AppPrefs.normalizeVideoCardLongPressAction(value)) {
-                AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_WATCH_LATER -> WATCH_LATER
-                AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_OPEN_DETAIL -> OPEN_DETAIL
+                AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_VIDEO_DISLIKE -> VIDEO_DISLIKE
+                AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_UP_DISLIKE -> UP_DISLIKE
                 AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_OPEN_UP -> OPEN_UP
                 AppPrefs.VIDEO_CARD_LONG_PRESS_ACTION_DISMISS -> DISMISS
                 else -> MANUAL
@@ -27,8 +27,8 @@ enum class VideoCardConfiguredLongPressAction {
 }
 
 enum class VideoCardQuickActionId {
-    WATCH_LATER,
-    OPEN_DETAIL,
+    VIDEO_DISLIKE,
+    UP_DISLIKE,
     OPEN_UP,
     DISMISS,
 }
@@ -39,17 +39,17 @@ data class VideoCardQuickAction(
     val contentDescription: CharSequence,
 ) {
     companion object {
-        fun watchLater(label: CharSequence): VideoCardQuickAction =
+        fun videoDislike(label: CharSequence): VideoCardQuickAction =
             VideoCardQuickAction(
-                id = VideoCardQuickActionId.WATCH_LATER,
-                iconResId = R.drawable.ic_video_card_watch_later,
+                id = VideoCardQuickActionId.VIDEO_DISLIKE,
+                iconResId = R.drawable.ic_video_card_not_interested,
                 contentDescription = label,
             )
 
-        fun openDetail(label: CharSequence): VideoCardQuickAction =
+        fun upDislike(label: CharSequence): VideoCardQuickAction =
             VideoCardQuickAction(
-                id = VideoCardQuickActionId.OPEN_DETAIL,
-                iconResId = R.drawable.ic_player_detail,
+                id = VideoCardQuickActionId.UP_DISLIKE,
+                iconResId = R.drawable.ic_video_card_not_interested,
                 contentDescription = label,
             )
 
