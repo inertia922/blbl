@@ -227,7 +227,7 @@ class LiveGridFragment : Fragment(), LivePageFocusTarget, RefreshKeyHandler {
                             when (source) {
                                 SRC_FOLLOWING -> {
                                     val res = BiliApi.liveFollowing(page = page, pageSize = 10)
-                                    FetchedPage(items = res.items, hasMore = res.hasMore)
+                                    FetchedPage(items = res.items.filter { it.isLive }, hasMore = res.hasMore)
                                 }
                                 SRC_SEARCH -> {
                                     val keyword = searchKeyword

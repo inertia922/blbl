@@ -390,6 +390,9 @@ class UpDetailActivity : BaseActivity() {
     }
 
     private fun setupSortButton() {
+        binding.llSortBar.isVisible = (currentTab == UpTab.ARCHIVE)
+        binding.btnSortOrder.text =
+            if (archiveSortOrder == "pubdate") "按发布时间排序" else "按播放量排序"
         binding.btnSortOrder.setOnClickListener {
             val next = if (archiveSortOrder == "pubdate") "click" else "pubdate"
             archiveSortOrder = next
@@ -1179,7 +1182,7 @@ class UpDetailActivity : BaseActivity() {
             hasMoreProvider = { !archiveEndReached },
         ) { pageNum ->
             val targetPage = pageNum.coerceAtLeast(1)
-            val page = BiliApi.spaceArcSearchPage(mid = mid, pn = targetPage, ps = 30)
+            val page = BiliApi.spaceArcSearchPage(mid = mid, pn = targetPage, ps = 30, order = archiveSortOrder)
             VideoCardPlaylistPage(
                 cards = page.items,
                 nextCursor = targetPage + 1,

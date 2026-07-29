@@ -118,7 +118,7 @@
                         android:layout_height="@dimen/video_card_action_icon_up_dislike_size"
                         android:layout_gravity="center"
                         android:contentDescription="@string/video_card_action_up_dislike"
-                        android:src="@drawable/ic_video_card_not_interested"
+                        android:src="@drawable/ic_video_card_up_dislike"
                         android:tint="@android:color/white" />
                 </FrameLayout>
 
