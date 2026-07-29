@@ -41,8 +41,14 @@ jobs:
           RELEASE_KEY_ALIAS: release
           RELEASE_KEY_PASSWORD: android
 
+      - name: Rename APK with tag
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          cp app/build/outputs/apk/release/app-release.apk \
+             app/build/outputs/apk/release/blbl-${TAG}-release.apk
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: app/build/outputs/apk/release/app-release.apk
+          files: app/build/outputs/apk/release/blbl-*-release.apk
           generate_release_notes: true
