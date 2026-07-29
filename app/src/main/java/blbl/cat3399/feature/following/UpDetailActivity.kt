@@ -390,7 +390,7 @@ class UpDetailActivity : BaseActivity() {
     }
 
     private fun setupSortButton() {
-        binding.llSortBar.isVisible = (currentTab == UpTab.ARCHIVE)
+        applySortBarVisibility()
         binding.btnSortOrder.text =
             if (archiveSortOrder == "pubdate") "按发布时间排序" else "按播放量排序"
         binding.btnSortOrder.setOnClickListener {
@@ -400,6 +400,14 @@ class UpDetailActivity : BaseActivity() {
                 if (next == "pubdate") "按发布时间排序" else "按播放量排序"
             resetAndLoadArchive()
         }
+        // Re-assert visibility after first layout, in case any header/layout pass resets it.
+        binding.llSortBar.postIfAlive(isAlive = { !isFinishing && !isDestroyed }) {
+            applySortBarVisibility()
+        }
+    }
+
+    private fun applySortBarVisibility() {
+        binding.llSortBar.isVisible = (currentTab == UpTab.ARCHIVE)
     }
 
     private fun scheduleInitialTab0Focus() {
@@ -418,9 +426,12 @@ class UpDetailActivity : BaseActivity() {
     }
 
     private fun switchTab(next: UpTab) {
-        binding.llSortBar.isVisible = (next == UpTab.ARCHIVE)
-        if (currentTab == next) return
+        if (currentTab == next) {
+            applySortBarVisibility()
+            return
+        }
         currentTab = next
+        applySortBarVisibility()
         // Tab switching can be triggered by focus changes while RecyclerView is recycling children
         // (e.g. during generic motion scroll). Switching adapter/layout manager synchronously at that
         // moment can crash with "Cannot call removeView(At) within removeView(At)".
