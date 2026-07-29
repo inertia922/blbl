@@ -244,21 +244,23 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_sort_order"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:minWidth="0dp"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
+                android:nextFocusDown="@id/recycler"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:stateListAnimator="@animator/blbl_focus_scale"
                 android:text="按发布时间排序"
                 android:textAllCaps="false"
-                android:textColor="?attr/blblAccent"
                 android:textSize="14sp"
-                android:textStyle="bold"
+                android:focusable="true"
+                app:cornerRadius="20dp"
                 app:icon="@drawable/ic_sort"
-                app:iconTint="?attr/blblAccent"
                 app:iconPadding="6dp"
-                android:focusable="true" />
+                app:iconSize="20dp"
+                app:strokeColor="?attr/blblFocusStrokeColor"
+                app:strokeWidth="2dp" />
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 

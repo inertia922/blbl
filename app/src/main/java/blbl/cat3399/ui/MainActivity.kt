@@ -69,7 +69,6 @@ class MainActivity : BaseActivity(), SidebarFocusHost {
     private var pausedFocusedView: WeakReference<View>? = null
     private var pausedFocusWasInMain: Boolean = false
     private var focusListener: ViewTreeObserver.OnGlobalFocusChangeListener? = null
-    private var disclaimerPopup: PopupHandle? = null
     private var crashPromptPopup: PopupHandle? = null
     private var ijkKernelPromptPopup: PopupHandle? = null
     private var autoUpdatePromptPopup: PopupHandle? = null
@@ -869,31 +868,12 @@ class MainActivity : BaseActivity(), SidebarFocusHost {
     }
 
     private fun showFirstLaunchDisclaimerIfNeeded() {
-        if (BiliClient.prefs.disclaimerAccepted) return
-        if (disclaimerPopup?.isShowing == true) return
-
-        disclaimerPopup =
-            AppPopup.confirm(
-                context = this,
-                title = getString(R.string.disclaimer_title),
-                message = getString(R.string.disclaimer_message),
-                positiveText = getString(R.string.disclaimer_accept),
-                negativeText = getString(R.string.disclaimer_exit),
-                cancelable = false,
-                onPositive = { BiliClient.prefs.disclaimerAccepted = true },
-                onNegative = { finish() },
-                onDismiss = {
-                    disclaimerPopup = null
-                    if (!BiliClient.prefs.disclaimerAccepted && !isChangingConfigurations) finish()
-                    maybeStartAutoUpdateCheck()
-                    showIjkKernelUpdatePromptIfNeeded()
-                },
-            )
+        // Personal-use app — skip the disclaimer dialog entirely.
+        BiliClient.prefs.disclaimerAccepted = true
     }
 
     private fun showLastCrashPromptIfNeeded() {
         if (!BiliClient.prefs.disclaimerAccepted) return
-        if (disclaimerPopup?.isShowing == true) return
         if (crashPromptPopup?.isShowing == true) return
 
         val crash = CrashTracker.loadLastCrash(this) ?: return
@@ -925,7 +905,6 @@ class MainActivity : BaseActivity(), SidebarFocusHost {
             showAutoUpdatePromptIfReady()
             return
         }
-        if (disclaimerPopup?.isShowing == true) return
         if (crashPromptPopup?.isShowing == true) return
         if (ijkKernelPromptPopup?.isShowing == true) return
 
@@ -987,7 +966,6 @@ class MainActivity : BaseActivity(), SidebarFocusHost {
     private fun showAutoUpdatePromptIfReady() {
         if (!BiliClient.prefs.autoUpdateCheckEnabled) return
         if (!BiliClient.prefs.disclaimerAccepted) return
-        if (disclaimerPopup?.isShowing == true) return
         if (crashPromptPopup?.isShowing == true) return
         if (ijkKernelPromptPopup?.isShowing == true) return
         if (autoUpdatePromptPopup?.isShowing == true) return

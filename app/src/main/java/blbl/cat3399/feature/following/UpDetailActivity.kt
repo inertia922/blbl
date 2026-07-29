@@ -198,6 +198,17 @@ class UpDetailActivity : BaseActivity() {
                 }
             }
         }
+
+        // When the sort bar is visible, route DPAD_DOWN from tab bar to the sort button
+        if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0 && event.keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+            val focused = currentFocus
+            if (focused != null && FocusTreeUtils.isDescendantOf(focused, binding.tabLayout) &&
+                binding.llSortBar.isVisible && binding.btnSortOrder.isFocusable) {
+                binding.btnSortOrder.requestFocus()
+                return true
+            }
+        }
+
         if (event.action == KeyEvent.ACTION_DOWN && currentFocus == null && isNavKey(event.keyCode)) {
             ensureInitialFocus()
             return true
@@ -400,6 +411,13 @@ class UpDetailActivity : BaseActivity() {
                 if (next == "pubdate") "按发布时间排序" else "按播放量排序"
             resetAndLoadArchive()
         }
+        // DPAD_UP from sort button returns focus to the selected tab
+        binding.btnSortOrder.setOnKeyListener { _, keyCode, event ->
+            if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
+            if (keyCode != KeyEvent.KEYCODE_DPAD_UP) return@setOnKeyListener false
+            focusSelectedTab()
+            true
+        }
         // Re-assert visibility after first layout, in case any header/layout pass resets it.
         binding.llSortBar.postIfAlive(isAlive = { !isFinishing && !isDestroyed }) {
             applySortBarVisibility()
@@ -570,6 +588,13 @@ class UpDetailActivity : BaseActivity() {
     }
 
     private fun focusTabsFromContentEdge(): Boolean {
+        // When sort bar is visible and focusable, prioritize it over tabs.
+        // On TV the sort button sits between the tab bar and the content grid,
+        // so DPAD_UP from content should land on the sort button first.
+        if (binding.llSortBar.isVisible && binding.btnSortOrder.isFocusable) {
+            binding.btnSortOrder.requestFocus()
+            return true
+        }
         return requestFocusSelectedTabView()
     }
 
