@@ -49,7 +49,7 @@ data class VideoCardQuickAction(
         fun upDislike(label: CharSequence): VideoCardQuickAction =
             VideoCardQuickAction(
                 id = VideoCardQuickActionId.UP_DISLIKE,
-                iconResId = R.drawable.ic_video_card_not_interested,
+                iconResId = R.drawable.ic_video_card_up_dislike,
                 contentDescription = label,
             )
 
