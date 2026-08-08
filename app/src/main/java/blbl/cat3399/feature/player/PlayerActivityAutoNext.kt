@@ -332,6 +332,11 @@ internal fun PlayerActivity.maybeStartAutoNextAfterEndedCountdown() {
         showAutoNextHint(target)
     } else if (shouldShowAutoNextHintFallback(mode)) {
         showAutoNextHintFallback(autoNextFallbackTitleForMode(mode))
+    } else {
+        // No next video available — return to the detail page immediately instead of black-screening.
+        clearAutoNextState(reason = "ended_no_next", resetUserCancellation = false)
+        finish()
+        return
     }
 
     val token = SystemClock.uptimeMillis()

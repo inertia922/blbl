@@ -1043,7 +1043,10 @@ internal fun PlayerActivity.handlePlaybackEnded(engine: BlblPlayerEngine) {
     val mode = resolvedPlaybackMode()
 
     when (mode) {
-        AppPrefs.PLAYER_PLAYBACK_MODE_NONE -> Unit
+        AppPrefs.PLAYER_PLAYBACK_MODE_NONE -> {
+            // No auto-next in this mode — return to the detail page instead of showing a black screen.
+            finish()
+        }
 
         AppPrefs.PLAYER_PLAYBACK_MODE_LOOP_ONE -> {
             restartCurrentPlaybackFromBeginning(engine = engine, showControls = false, showHint = false)
