@@ -602,9 +602,8 @@ class PlayerActivity : BaseActivity() {
 
     private fun enqueueExitProgressReport(reason: String) {
         val trace = trace
-        // If auto-resume is pending, the player is briefly at position ~= 0.
-        // Reporting during this window can overwrite server-side history to "1s" and cause a restart-from-beginning loop
-        // after Activity recreation.
+        // Keep the resumed position uncommitted during the short undo window, so pressing BACK to restart from zero
+        // cannot race with an immediate history report of the resumed position.
         if (autoResumeHintVisible) {
             trace?.log("report:skip", "autoResumeHint=1 reason=$reason")
             return
@@ -2282,7 +2281,7 @@ class PlayerActivity : BaseActivity() {
         if (!shouldReportAnyProgressNow()) return
         val token = reportToken
         val exo = player ?: return
-        // Prevent a premature "sec=1" report when auto-resume is about to seek to the real position.
+        // Do not commit the resumed position until the user-facing restart-from-zero window has closed.
         if (autoResumeHintVisible) {
             trace?.log("report:skip", "autoResumeHint=1 reason=$reason force=${if (force) 1 else 0}")
             return
@@ -3060,7 +3059,14 @@ class PlayerActivity : BaseActivity() {
                         lastPickedDash = playable
                         debug.cdnHost = runCatching { Uri.parse(playable.videoUrl).host }.getOrNull()
                         logPickedPlayable(source = "reload", playable = playable)
-                        engine.setSource(PlaybackSource.Vod(playable = playable, subtitle = subtitleConfig, durationMs = currentViewDurationMs))
+                        engine.setSource(
+                            PlaybackSource.Vod(
+                                playable = playable,
+                                subtitle = subtitleConfig,
+                                durationMs = currentViewDurationMs,
+                                initialPositionMs = pos.takeIf { keepPosition },
+                            ),
+                        )
                         applyResolutionFallbackIfNeeded(requestedQn = session.targetQn, actualQn = playable.qn)
                         applyAudioFallbackIfNeeded(requestedAudioId = session.targetAudioId, actualAudioId = playable.audioId)
                     }
@@ -3070,7 +3076,14 @@ class PlayerActivity : BaseActivity() {
                         (binding.recyclerSettings.adapter as? PlayerSettingsAdapter)?.let { refreshSettings(it) }
                         debug.cdnHost = runCatching { Uri.parse(playable.videoUrl).host }.getOrNull()
                         logPickedPlayable(source = "reload", playable = playable)
-                        engine.setSource(PlaybackSource.Vod(playable = playable, subtitle = subtitleConfig, durationMs = currentViewDurationMs))
+                        engine.setSource(
+                            PlaybackSource.Vod(
+                                playable = playable,
+                                subtitle = subtitleConfig,
+                                durationMs = currentViewDurationMs,
+                                initialPositionMs = pos.takeIf { keepPosition },
+                            ),
+                        )
                         applyResolutionFallbackIfNeeded(requestedQn = session.targetQn, actualQn = playable.qn)
                     }
                     is Playable.Progressive -> {
@@ -3079,13 +3092,19 @@ class PlayerActivity : BaseActivity() {
                         (binding.recyclerSettings.adapter as? PlayerSettingsAdapter)?.let { refreshSettings(it) }
                         debug.cdnHost = runCatching { Uri.parse(playable.url).host }.getOrNull()
                         logPickedPlayable(source = "reload", playable = playable)
-                        engine.setSource(PlaybackSource.Vod(playable = playable, subtitle = subtitleConfig, durationMs = currentViewDurationMs))
+                        engine.setSource(
+                            PlaybackSource.Vod(
+                                playable = playable,
+                                subtitle = subtitleConfig,
+                                durationMs = currentViewDurationMs,
+                                initialPositionMs = pos.takeIf { keepPosition },
+                            ),
+                        )
                     }
                 }
                 schedulePlayUrlAutoRefresh(playable, reason = "reload_stream")
                 engine.prepare()
                 (engine as? ExoPlayerEngine)?.exoPlayer?.let { applySubtitleEnabled(it) }
-                if (keepPosition) engine.seekTo(pos)
                 engine.playWhenReady = autoPlay
             } catch (t: Throwable) {
                 AppLog.e("Player", "reloadStream failed", t)

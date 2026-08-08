@@ -168,7 +168,11 @@ internal class ExoPlayerEngine(
     override fun setSource(source: PlaybackSource) {
         when (source) {
             is PlaybackSource.Vod -> {
-                setVodPlayable(source.playable, subtitle = source.subtitle)
+                setVodPlayable(
+                    playable = source.playable,
+                    subtitle = source.subtitle,
+                    initialPositionMs = source.initialPositionMs,
+                )
             }
 
             is PlaybackSource.Live -> {
@@ -295,7 +299,11 @@ internal class ExoPlayerEngine(
         return DefaultMediaSourceFactory(DefaultDataSource.Factory(appContext, factory)).createMediaSource(item)
     }
 
-    private fun setVodPlayable(playable: Playable, subtitle: MediaItem.SubtitleConfiguration?) {
+    private fun setVodPlayable(
+        playable: Playable,
+        subtitle: MediaItem.SubtitleConfiguration?,
+        initialPositionMs: Long?,
+    ) {
         when (playable) {
             is Playable.Dash -> {
                 val videoFactory =
@@ -310,7 +318,10 @@ internal class ExoPlayerEngine(
                         urlCandidates = playable.audioUrlCandidates,
                         mediaRequestProfile = playable.audioMediaRequestProfile,
                     )
-                exoPlayer.setMediaSource(buildMerged(videoFactory, audioFactory, playable.videoUrl, playable.audioUrl, subtitle))
+                setMediaSource(
+                    mediaSource = buildMerged(videoFactory, audioFactory, playable.videoUrl, playable.audioUrl, subtitle),
+                    initialPositionMs = initialPositionMs,
+                )
             }
 
             is Playable.VideoOnly -> {
@@ -320,7 +331,10 @@ internal class ExoPlayerEngine(
                         urlCandidates = playable.videoUrlCandidates,
                         mediaRequestProfile = playable.videoMediaRequestProfile,
                     )
-                exoPlayer.setMediaSource(buildProgressive(mainFactory, playable.videoUrl, subtitle))
+                setMediaSource(
+                    mediaSource = buildProgressive(mainFactory, playable.videoUrl, subtitle),
+                    initialPositionMs = initialPositionMs,
+                )
             }
 
             is Playable.Progressive -> {
@@ -330,8 +344,20 @@ internal class ExoPlayerEngine(
                         urlCandidates = playable.urlCandidates,
                         mediaRequestProfile = playable.mediaRequestProfile,
                     )
-                exoPlayer.setMediaSource(buildProgressive(mainFactory, playable.url, subtitle))
+                setMediaSource(
+                    mediaSource = buildProgressive(mainFactory, playable.url, subtitle),
+                    initialPositionMs = initialPositionMs,
+                )
             }
+        }
+    }
+
+    private fun setMediaSource(mediaSource: MediaSource, initialPositionMs: Long?) {
+        val initialPosition = initialPositionMs?.takeIf { it > 0L }
+        if (initialPosition != null) {
+            exoPlayer.setMediaSource(mediaSource, initialPosition)
+        } else {
+            exoPlayer.setMediaSource(mediaSource)
         }
     }
 }
