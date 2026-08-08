@@ -59,12 +59,46 @@ class SearchRenderer internal constructor(
         setupQueryInput()
 
         binding.recyclerKeys.adapter = keyAdapter
-        binding.recyclerKeys.layoutManager = GridLayoutManager(viewContext, 6)
+        binding.recyclerKeys.layoutManager = GridLayoutManager(viewContext, KEY_COLUMN_COUNT)
         (binding.recyclerKeys.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
         keyAdapter.submit(KEYS)
         binding.recyclerKeys.addOnChildAttachStateChangeListener(
             object : RecyclerView.OnChildAttachStateChangeListener {
                 override fun onChildViewAttachedToWindow(view: View) {
+                    view.setOnKeyListener { v, keyCode, event ->
+                        if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
+                        val holder = binding.recyclerKeys.findContainingViewHolder(v) ?: return@setOnKeyListener false
+                        val pos =
+                            holder.bindingAdapterPosition.takeIf { it != RecyclerView.NO_POSITION }
+                                ?: return@setOnKeyListener false
+                        val column = pos % KEY_COLUMN_COUNT
+                        val row = pos / KEY_COLUMN_COUNT
+
+                        when (keyCode) {
+                            KeyEvent.KEYCODE_DPAD_UP -> {
+                                if (row != 0) return@setOnKeyListener false
+                                if (column < KEY_COLUMN_COUNT / 2) {
+                                    binding.btnClear.requestFocus()
+                                } else {
+                                    binding.btnBackspace.requestFocus()
+                                }
+                            }
+
+                            KeyEvent.KEYCODE_DPAD_DOWN -> {
+                                if (row != KEY_ROW_COUNT - 1) return@setOnKeyListener false
+                                binding.btnSearch.requestFocus()
+                            }
+
+                            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                                if (column != KEY_COLUMN_COUNT - 1) return@setOnKeyListener false
+                                focusMiddleOrHotFromKeyPosition(pos)
+                                true
+                            }
+
+                            else -> false
+                        }
+                    }
+
                     view.onFocusChangeListener =
                         View.OnFocusChangeListener { v, hasFocus ->
                             if (!hasFocus) return@OnFocusChangeListener
@@ -77,6 +111,7 @@ class SearchRenderer internal constructor(
                 }
 
                 override fun onChildViewDetachedFromWindow(view: View) {
+                    view.setOnKeyListener(null)
                     view.onFocusChangeListener = null
                 }
             },
@@ -105,7 +140,10 @@ class SearchRenderer internal constructor(
                             }
 
                             KeyEvent.KEYCODE_DPAD_UP -> {
-                                if (pos == 0) return@setDpadItemKeyHandler true
+                                if (pos == 0) {
+                                    binding.tvQuery.requestFocus()
+                                    return@setDpadItemKeyHandler true
+                                }
                                 // Top edge: don't escape to sidebar.
                                 if (!binding.recyclerSuggest.canScrollVertically(-1)) {
                                     val lm =
@@ -116,6 +154,11 @@ class SearchRenderer internal constructor(
                                     if (first.any { it == pos }) return@setDpadItemKeyHandler true
                                 }
                                 false
+                            }
+
+                            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                                focusHotAt(pos)
+                                true
                             }
 
                             KeyEvent.KEYCODE_DPAD_DOWN -> {
@@ -156,11 +199,16 @@ class SearchRenderer internal constructor(
                 recyclerView = binding.recyclerSuggest,
                 callbacks =
                     object : DpadGridController.Callbacks {
-                        override fun onTopEdge(): Boolean = true
+                        override fun onTopEdge(): Boolean {
+                            binding.tvQuery.requestFocus()
+                            return true
+                        }
 
                         override fun onLeftEdge(): Boolean = focusLastKey()
 
-                        override fun onRightEdge() = Unit
+                        override fun onRightEdge() {
+                            focusHotAt(state.lastFocusedSuggestPos)
+                        }
 
                         override fun canLoadMore(): Boolean = false
 
@@ -195,7 +243,10 @@ class SearchRenderer internal constructor(
                             }
 
                             KeyEvent.KEYCODE_DPAD_UP -> {
-                                if (pos == 0) return@setOnKeyListener true
+                                if (pos == 0) {
+                                    binding.tvQuery.requestFocus()
+                                    return@setOnKeyListener true
+                                }
                                 // Top edge: don't escape to sidebar.
                                 if (!binding.recyclerHot.canScrollVertically(-1)) {
                                     val lm =
@@ -215,6 +266,8 @@ class SearchRenderer internal constructor(
                                 true
                             }
 
+                            KeyEvent.KEYCODE_DPAD_RIGHT -> true
+
                             else -> false
                         }
                     }
@@ -231,9 +284,19 @@ class SearchRenderer internal constructor(
         }
         binding.btnClear.setOnKeyListener { _, keyCode, event ->
             if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
-            if (keyCode != KeyEvent.KEYCODE_DPAD_UP) return@setOnKeyListener false
-            binding.tvQuery.requestFocus()
-            true
+            when (keyCode) {
+                KeyEvent.KEYCODE_DPAD_UP -> {
+                    binding.tvQuery.requestFocus()
+                    true
+                }
+
+                KeyEvent.KEYCODE_DPAD_DOWN -> {
+                    focusKeyAt(KEY_CLEAR_DOWN_POSITION)
+                    true
+                }
+
+                else -> false
+            }
         }
 
         binding.btnBackspace.setOnClickListener {
@@ -242,17 +305,47 @@ class SearchRenderer internal constructor(
         }
         binding.btnBackspace.setOnKeyListener { _, keyCode, event ->
             if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
-            if (keyCode != KeyEvent.KEYCODE_DPAD_UP) return@setOnKeyListener false
-            binding.tvQuery.requestFocus()
-            true
+            when (keyCode) {
+                KeyEvent.KEYCODE_DPAD_UP -> {
+                    binding.tvQuery.requestFocus()
+                    true
+                }
+
+                KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    if (!focusHistoryAt(0)) focusHotAt(0)
+                    true
+                }
+
+                KeyEvent.KEYCODE_DPAD_DOWN -> {
+                    focusKeyAt(KEY_BACKSPACE_DOWN_POSITION)
+                    true
+                }
+
+                else -> false
+            }
         }
 
         binding.btnSearch.setOnClickListener { interactor.performSearch() }
         binding.btnSearch.setOnKeyListener { _, keyCode, event ->
             if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
-            if (keyCode != KeyEvent.KEYCODE_DPAD_DOWN) return@setOnKeyListener false
-            // Bottom edge: don't escape to sidebar.
-            true
+            when (keyCode) {
+                KeyEvent.KEYCODE_DPAD_UP -> {
+                    focusLastKey()
+                    true
+                }
+
+                KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    if (!focusLastHistoryItem()) focusLastHotItem()
+                    true
+                }
+
+                KeyEvent.KEYCODE_DPAD_DOWN -> {
+                    // Bottom edge: don't escape to sidebar.
+                    true
+                }
+
+                else -> false
+            }
         }
 
         binding.btnClearHistory.setOnClickListener {
@@ -262,6 +355,11 @@ class SearchRenderer internal constructor(
             if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
             when (keyCode) {
                 KeyEvent.KEYCODE_DPAD_UP -> focusLastHistoryItem()
+                KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    focusLastHotItem()
+                    true
+                }
+
                 KeyEvent.KEYCODE_DPAD_LEFT -> {
                     focusLastKey()
                     true
@@ -370,6 +468,11 @@ class SearchRenderer internal constructor(
 
                 KeyEvent.KEYCODE_DPAD_UP -> {
                     // Top edge: don't escape to sidebar.
+                    true
+                }
+
+                KeyEvent.KEYCODE_DPAD_DOWN -> {
+                    focusLastKey()
                     true
                 }
 
@@ -488,6 +591,13 @@ class SearchRenderer internal constructor(
             binding.tvQuery.requestFocus()
             true
         }
+
+        binding.tvResultsPlaceholder.setOnKeyListener { _, keyCode, event ->
+            if (event.action != KeyEvent.ACTION_DOWN || keyCode != KeyEvent.KEYCODE_DPAD_UP) {
+                return@setOnKeyListener false
+            }
+            focusSelectedTab()
+        }
         updateSortUi()
 
         binding.swipeRefresh.setOnRefreshListener { interactor.resetAndLoad() }
@@ -587,6 +697,7 @@ class SearchRenderer internal constructor(
 
     fun onResultsApplied() {
         binding.recyclerResults.postIfAlive(isAlive = { !released }) {
+            updateCurrentResultState()
             if (maybeConsumePendingFocusFirstResultCardAfterRefresh()) return@postIfAlive
             maybeConsumePendingResultFocus()
             resultsGridController?.consumePendingFocusAfterLoadMore()
@@ -704,6 +815,13 @@ class SearchRenderer internal constructor(
         val recycler = binding.recyclerResults
         val isUiAlive = { !released && fragment.isAdded && fragment.isResumed && isResultsVisible() }
         val itemCount = recycler.adapter?.itemCount ?: 0
+        if (itemCount <= 0) {
+            val focused = fragment.activity?.currentFocus
+            val canMoveFocus = focused == null || FocusTreeUtils.isDescendantOf(focused, recycler)
+            if (canMoveFocus) binding.tvResultsPlaceholder.requestFocus()
+            state.pendingFocusFirstResultCardAfterRefresh = false
+            return true
+        }
         recycler.requestFocusFirstItemOrSelfAfterRefresh(
             itemCount = itemCount,
             smoothScroll = false,
@@ -737,7 +855,8 @@ class SearchRenderer internal constructor(
 
         val adapter = binding.recyclerResults.adapter
         if (adapter == null || adapter.itemCount <= 0) {
-            binding.recyclerResults.requestFocus()
+            binding.tvResultsPlaceholder.requestFocus()
+            state.clearPendingResultFocusRequests()
             return true
         }
 
@@ -860,6 +979,38 @@ class SearchRenderer internal constructor(
         return true
     }
 
+    private fun focusHotAt(pos: Int): Boolean {
+        val count = binding.recyclerHot.adapter?.itemCount ?: return false
+        if (count <= 0) return false
+        val safePos = pos.coerceIn(0, count - 1)
+        val recycler = binding.recyclerHot
+        recycler.scrollToPosition(safePos)
+        recycler.postIfAlive(isAlive = { !released }) {
+            recycler.findViewHolderForAdapterPosition(safePos)?.itemView?.requestFocus()
+        }
+        return true
+    }
+
+    private fun focusLastHotItem(): Boolean {
+        val count = binding.recyclerHot.adapter?.itemCount ?: return false
+        if (count <= 0) return false
+        val last = count - 1
+        val recycler = binding.recyclerHot
+        recycler.scrollToPosition(last)
+        recycler.postIfAlive(isAlive = { !released }) {
+            recycler.findViewHolderForAdapterPosition(last)?.itemView?.requestFocus()
+        }
+        return true
+    }
+
+    private fun focusMiddleOrHotFromKeyPosition(pos: Int) {
+        val sidePos = mapKeyPositionToSidePosition(pos)
+        if (!focusHistoryAt(sidePos)) focusHotAt(sidePos)
+    }
+
+    private fun mapKeyPositionToSidePosition(pos: Int): Int =
+        pos / KEY_COLUMN_COUNT * 2 + if (pos % KEY_COLUMN_COUNT >= KEY_COLUMN_COUNT / 2) 1 else 0
+
     fun focusSelectedTabAfterShow() {
         val tabLayout = binding.tabLayout
         tabLayout.postIfAlive(isAlive = { !released }) {
@@ -878,6 +1029,13 @@ class SearchRenderer internal constructor(
 
         binding.tvResultsPlaceholder.visibility = View.GONE
         binding.swipeRefresh.visibility = View.VISIBLE
+    }
+
+    private fun updateCurrentResultState() {
+        val hasResults = (binding.recyclerResults.adapter?.itemCount ?: 0) > 0
+        binding.swipeRefresh.visibility = View.VISIBLE
+        binding.tvResultsPlaceholder.visibility = if (hasResults) View.GONE else View.VISIBLE
+        if (!hasResults) binding.tvResultsPlaceholder.text = viewContext.getString(R.string.search_no_results)
     }
 
     fun clearResultsForTab(index: Int) {
@@ -1146,6 +1304,11 @@ class SearchRenderer internal constructor(
     }
 
     companion object {
+        private const val KEY_COLUMN_COUNT = 6
+        private const val KEY_ROW_COUNT = 6
+        private const val KEY_CLEAR_DOWN_POSITION = 1
+        private const val KEY_BACKSPACE_DOWN_POSITION = 5
+
         private val KEYS =
             listOf(
                 "A", "B", "C", "D", "E", "F",
