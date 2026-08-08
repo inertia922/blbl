@@ -97,7 +97,7 @@ class BangumiDetailActivity : BaseActivity() {
         }
 
         episodeOrderReversed = BiliClient.prefs.pgcEpisodeOrderReversed.takeIf { it } ?: true
-        extrasOrderReversed = BiliClient.prefs.pgcExtrasOrderReversed
+        extrasOrderReversed = BiliClient.prefs.pgcExtrasOrderReversed.takeIf { it } ?: true
         pendingContinueEpIdHint = continueEpIdArg
         pendingContinueEpIndexHint = continueEpIndexArg
 
