@@ -357,7 +357,7 @@
             android:background="?attr/blblFocusBgRound"
             android:layout_marginHorizontal="0dp"
             android:layout_marginBottom="@dimen/player_seekbar_margin_bottom"
-            android:nextFocusUp="@id/btn_up_quick_profile"
+            android:nextFocusUp="@id/btn_settings"
             android:paddingHorizontal="0dp"
             android:progressDrawable="@drawable/seekbar_player_progress"
             android:splitTrack="false"

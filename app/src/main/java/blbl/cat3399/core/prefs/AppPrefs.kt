@@ -798,12 +798,15 @@ class AppPrefs(context: Context) {
             if (!prefs.contains(KEY_PLAYER_OSD_BUTTONS)) return DEFAULT_PLAYER_OSD_BUTTONS
             val stored = loadStringList(KEY_PLAYER_OSD_BUTTONS)
             val normalized = normalizePlayerOsdButtons(stored)
-            return migratePlayerOsdDetailButtonIfNeeded(normalized)
+            return migratePlayerOsdUpButtonIfNeeded(migratePlayerOsdDetailButtonIfNeeded(normalized))
         }
         set(value) {
             saveStringList(KEY_PLAYER_OSD_BUTTONS, normalizePlayerOsdButtons(value))
             // Once user manually configures OSD buttons, never force-enable new buttons again.
-            prefs.edit().putBoolean(KEY_PLAYER_OSD_BUTTONS_DETAIL_MIGRATED, true).apply()
+            prefs.edit()
+                .putBoolean(KEY_PLAYER_OSD_BUTTONS_DETAIL_MIGRATED, true)
+                .putBoolean(KEY_PLAYER_OSD_BUTTONS_UP_MIGRATED, true)
+                .apply()
         }
 
     internal var playerCustomShortcuts: List<PlayerCustomShortcut>
@@ -960,6 +963,18 @@ class AppPrefs(context: Context) {
         if (normalized.contains(PLAYER_OSD_BTN_DETAIL)) return normalized
 
         val migrated = normalized + PLAYER_OSD_BTN_DETAIL
+        saveStringList(KEY_PLAYER_OSD_BUTTONS, migrated)
+        return migrated
+    }
+
+    private fun migratePlayerOsdUpButtonIfNeeded(normalized: List<String>): List<String> {
+        if (prefs.getBoolean(KEY_PLAYER_OSD_BUTTONS_UP_MIGRATED, false)) return normalized
+        // Requirement: auto-enable the new "UP" button even for users who previously customized OSD.
+        // Do it only once so the user can later disable it in Settings.
+        prefs.edit().putBoolean(KEY_PLAYER_OSD_BUTTONS_UP_MIGRATED, true).apply()
+        if (normalized.contains(PLAYER_OSD_BTN_UP)) return normalized
+
+        val migrated = normalized + PLAYER_OSD_BTN_UP
         saveStringList(KEY_PLAYER_OSD_BUTTONS, migrated)
         return migrated
     }
@@ -1124,6 +1139,7 @@ class AppPrefs(context: Context) {
         private const val KEY_PLAYER_UP_QUICK_CARD_ENABLED = "player_up_quick_card_enabled"
         private const val KEY_PLAYER_OSD_BUTTONS = "player_osd_buttons"
         private const val KEY_PLAYER_OSD_BUTTONS_DETAIL_MIGRATED = "player_osd_buttons_detail_migrated"
+        private const val KEY_PLAYER_OSD_BUTTONS_UP_MIGRATED = "player_osd_buttons_up_migrated"
         private const val KEY_PLAYER_CUSTOM_SHORTCUTS = "player_custom_shortcuts"
         private const val KEY_GRID_SPAN = "grid_span"
         private const val KEY_DYNAMIC_GRID_SPAN = "dynamic_grid_span"
@@ -1295,6 +1311,7 @@ class AppPrefs(context: Context) {
                 PLAYER_OSD_BTN_COMMENTS,
                 PLAYER_OSD_BTN_LIST_PANEL,
                 PLAYER_OSD_BTN_ADVANCED,
+                PLAYER_OSD_BTN_UP,
             )
 
         private val PLAYER_OSD_BUTTON_KEYS: Set<String> =

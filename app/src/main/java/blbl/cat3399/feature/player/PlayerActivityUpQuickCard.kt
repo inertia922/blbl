@@ -188,8 +188,9 @@ internal class PlayerUpQuickCardController(
 
     fun updateUi() {
         val hasUp = owner.mid > 0L
-        val showCard = hasUp && BiliClient.prefs.playerUpQuickCardEnabled && isCardVisible()
-        binding.cardUpQuick.visibility = if (showCard) View.VISIBLE else View.GONE
+        // The floating UP card above the video has been removed; the UP entry
+        // point is now the bottom OSD button (btn_up).
+        binding.cardUpQuick.visibility = View.GONE
         if (hasUp) {
             val upName = owner.name?.trim().orEmpty().ifBlank { "UP主" }
             binding.tvUpQuickName.text = upName
