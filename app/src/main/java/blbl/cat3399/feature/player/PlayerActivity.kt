@@ -1744,7 +1744,9 @@ class PlayerActivity : BaseActivity() {
                     return true
                 }
 
-                if (holdSeekUsesProgressPreview(direction = +1)) showSeekOsd()
+                // NOTE: Do NOT show the seek OSD on the first DPAD_RIGHT press.
+                // Showing it steals focus to the progress bar, so subsequent repeat
+                // events get handled by the SeekBar (scrub) instead of startHoldSeek (3x speed).
                 beginKeySeekPending(keyCode = keyCode, direction = +1, showControls = false)
                 return true
             }

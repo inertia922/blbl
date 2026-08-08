@@ -532,23 +532,14 @@ internal fun PlayerActivity.startHoldSeek(direction: Int, showControls: Boolean)
     }
 
     val holdSpeed = holdSeekSpeed()
-    val holdMode = BiliClient.prefs.playerHoldSeekMode
-    if (holdMode == AppPrefs.PLAYER_HOLD_SEEK_MODE_SPEED && keyScrubPendingSeekToMs != null) {
+    if (keyScrubPendingSeekToMs != null) {
         commitDeferredKeySeekPreview()
     }
     holdPrevSpeed = engine.playbackSpeed
     holdPrevPlayWhenReady = engine.playWhenReady
     holdScrubPreviewPosMs = null
-    if (holdMode == AppPrefs.PLAYER_HOLD_SEEK_MODE_SCRUB || holdMode == AppPrefs.PLAYER_HOLD_SEEK_MODE_SCRUB_FIXED_TIME) {
-        val fixedStepMs =
-            if (holdMode == AppPrefs.PLAYER_HOLD_SEEK_MODE_SCRUB_FIXED_TIME) {
-                holdScrubFixedStepMs()
-            } else {
-                null
-            }
-        startHoldScrubSeek(engine = engine, direction = direction, speed = holdSpeed, fixedStepMs = fixedStepMs)
-        return
-    }
+    // Long-press RIGHT always uses speed-up seek (3x), regardless of holdSeekMode setting.
+    // SCRUB modes are only used when the seek bar itself is focused (via startHoldScrub).
     showSeekHoldHint(direction, holdSpeed)
     engine.setPlaybackSpeed(holdSpeed)
     engine.playWhenReady = true
