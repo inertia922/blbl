@@ -273,13 +273,7 @@ class BangumiDetailActivity : BaseActivity() {
                 .trim()
                 .takeIf { it.isNotBlank() }
 
-        // 将最新的预告（extras 最后一个）合并到主剧集，放在最后确保倒序时排第一
-        val allExtraEpisodes = detail.extraSections.flatMap { it.episodes }
-        val latestExtraEpisode = allExtraEpisodes.lastOrNull()
-        val latestExtraEpId = latestExtraEpisode?.epId
-
         mainEpisodes = normalizeEpisodeOrder(detail.episodes)
-        latestExtraEpisode?.let { mainEpisodes = mainEpisodes + it }
 
         val continueEpIdHint = pendingContinueEpIdHint
         val continueEpIndexHint = pendingContinueEpIndexHint
@@ -297,28 +291,21 @@ class BangumiDetailActivity : BaseActivity() {
                 val bvid = ep.bvid?.trim().orEmpty()
                 val cid = ep.cid
                 if (bvid.isBlank() || cid == null || cid <= 0L) return@mapIndexedNotNull null
-                val card = bangumiEpToVideoCard(ep = ep, defaultIndex = index, sectionTitle = null)
-                if (ep.epId == latestExtraEpId) card.copy(title = "${card.title}【预告】") else card
+                bangumiEpToVideoCard(ep = ep, defaultIndex = index, sectionTitle = null)
             }
 
         extrasCards =
             detail.extraSections.flatMap { section ->
                 val sectionTitle = section.title.trim().takeIf { it.isNotBlank() }
                 section.episodes
-                    .filter { ep -> ep.epId != latestExtraEpId }
                     .mapIndexedNotNull { index, ep ->
                         bangumiEpToVideoCard(ep = ep, defaultIndex = index, sectionTitle = sectionTitle)
                     }
             }
 
-        // 倒序时预告排第一，让 autoScroll 定位到预告
         mainSelectedKey =
-            if (episodeOrderReversed && latestExtraEpId != null) {
-                mainEpisodeCards.firstOrNull { it.epId == latestExtraEpId }?.let(::cardStableKey)
-            } else {
-                continueEpisode?.let { target ->
-                    mainEpisodeCards.firstOrNull { it.epId == target.epId }?.let(::cardStableKey)
-                }
+            continueEpisode?.let { target ->
+                mainEpisodeCards.firstOrNull { it.epId == target.epId }?.let(::cardStableKey)
             }
     }
 
