@@ -323,6 +323,7 @@ class PlayerActivity : BaseActivity() {
     @Volatile
     private var exitTraceNavTargetFirstPreDrawLogged: Boolean = false
     private var transientPlaybackResumeRequested: Boolean? = null
+    private var leavingPausedWhilePlaying: Boolean = false
     private var decoderReleaseRequestedOnStop: Boolean = false
     private var resumeAfterDecoderRelease: Boolean = false
     private var resumeAfterDecoderReleasePositionMs: Long = 0L
@@ -1754,10 +1755,9 @@ class PlayerActivity : BaseActivity() {
             )
         }
         trace?.log("activity:onStop")
-        // Capture playback intent before pause() clears playWhenReady, so that the
-        // decoder-release path can restore the correct state after resume.
+        // Playback intent before pause() is captured in onPause (leavingPausedWhilePlaying),
+        // since pause() already cleared playWhenReady by the time onStop runs.
         val engineBeforePause = player
-        val wasPlaying = engineBeforePause?.isPlaying == true || engineBeforePause?.playWhenReady == true
         val releaseDecoderOnStop = decoderReleaseRequestedOnStop
         decoderReleaseRequestedOnStop = false
         if (isChangingConfigurations) {
@@ -1784,7 +1784,7 @@ class PlayerActivity : BaseActivity() {
             // surface is torn down, which can leave ExoPlayer's video renderer in a broken state —
             // black screen and an unresponsive play button after resume. Release the decoder now
             // so onStart() re-prepares against the fresh surface.
-            transientPlaybackResumeRequested = transientPlaybackResumeRequested ?: wasPlaying
+            transientPlaybackResumeRequested = transientPlaybackResumeRequested ?: leavingPausedWhilePlaying
             releaseDecoderNowForBackground()
         } else {
             val flush = !isFinishing && !isChangingConfigurations && !exitCleanupRequested
@@ -1837,6 +1837,9 @@ class PlayerActivity : BaseActivity() {
             )
         }
         trace?.log("activity:onPause")
+        // Record the real playback intent before pause() clears playWhenReady, so onStop()'s
+        // decoder-release path can restore the correct state (playing vs paused) after resume.
+        leavingPausedWhilePlaying = player?.let { it.isPlaying || it.playWhenReady } ?: false
         // Pause as early as possible when leaving foreground (e.g. Home key).
         // Some TV boxes have vendor bugs with SurfaceView + codec when the surface is being torn down.
         player?.pause()
