@@ -1712,7 +1712,7 @@ class PlayerActivity : BaseActivity() {
                     return true
                 }
 
-                if (holdSeekUsesProgressPreview(direction = -1)) showSeekOsd()
+                if (holdSeekUsesProgressPreview()) showSeekOsd()
                 beginKeySeekPending(keyCode = keyCode, direction = -1, showControls = false)
                 return true
             }
@@ -1754,6 +1754,10 @@ class PlayerActivity : BaseActivity() {
             )
         }
         trace?.log("activity:onStop")
+        // Capture playback intent before pause() clears playWhenReady, so that the
+        // decoder-release path can restore the correct state after resume.
+        val engineBeforePause = player
+        val wasPlaying = engineBeforePause?.isPlaying == true || engineBeforePause?.playWhenReady == true
         val releaseDecoderOnStop = decoderReleaseRequestedOnStop
         decoderReleaseRequestedOnStop = false
         if (isChangingConfigurations) {
@@ -1772,6 +1776,15 @@ class PlayerActivity : BaseActivity() {
             }
         }
         if (releaseDecoderOnStop && !isChangingConfigurations) {
+            releaseDecoderNowForBackground()
+        } else if (!exitCleanupRequested && !isFinishing && !isChangingConfigurations &&
+            engineBeforePause is ExoPlayerEngine
+        ) {
+            // Window became invisible (screen saver, launcher, system overlay): the SurfaceView
+            // surface is torn down, which can leave ExoPlayer's video renderer in a broken state —
+            // black screen and an unresponsive play button after resume. Release the decoder now
+            // so onStart() re-prepares against the fresh surface.
+            transientPlaybackResumeRequested = transientPlaybackResumeRequested ?: wasPlaying
             releaseDecoderNowForBackground()
         } else {
             val flush = !isFinishing && !isChangingConfigurations && !exitCleanupRequested

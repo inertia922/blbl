@@ -258,7 +258,7 @@ class VideoCardAdapter(
     ): ActionOverlayUi? {
         if (!isOverlayExpanded(item)) return null
         val actions = actionDelegate?.manualActions(item, position).orEmpty().take(ACTION_BUTTON_COUNT)
-        if (actions.size != ACTION_BUTTON_COUNT) return null
+        if (actions.size !in 1..ACTION_BUTTON_COUNT) return null
         return ActionOverlayUi(
             actions = actions,
             selectedIndex = selectedActionIndex.takeIf { it in actions.indices } ?: NO_ACTION_SELECTED,
@@ -493,6 +493,9 @@ class VideoCardAdapter(
                 return
             }
 
+            // 先全部显示，再根据实际 actions 数量隐藏多余按钮
+            // （LocalNotInterested 无独立 dismiss 按钮时只显示 3 个）
+            actionButtons.forEach { it.isVisible = true }
             overlayUi.actions.forEachIndexed { index, action ->
                 actionButtons[index].isSelected = overlayUi.selectedIndex == index
                 actionIcons[index].setImageResource(action.iconResId)
@@ -501,6 +504,11 @@ class VideoCardAdapter(
                     val pos = bindingAdapterPosition.takeIf { it != RecyclerView.NO_POSITION } ?: return@setOnClickListener
                     onOverlayActionClick(item, pos, index)
                 }
+            }
+            for (index in overlayUi.actions.size until actionButtons.size) {
+                actionButtons[index].isVisible = false
+                actionButtons[index].isSelected = false
+                actionButtons[index].setOnClickListener(null)
             }
             actionButtons.forEachIndexed { index, button ->
                 button.isSelected = overlayUi.selectedIndex == index

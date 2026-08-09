@@ -7,7 +7,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.Player
 import blbl.cat3399.core.api.BiliApi
 import blbl.cat3399.core.api.SponsorBlockApi
-import blbl.cat3399.core.api.SponsorBlockCategories
 import blbl.cat3399.core.api.video.VideoPlayResume
 import blbl.cat3399.core.api.video.VideoPlayStream
 import blbl.cat3399.core.api.video.VideoResumeTimeUnit
@@ -393,6 +392,39 @@ internal fun PlayerActivity.extractResumeCandidateFromPlayStream(playStream: Vid
     val resume = playStream.resume ?: return null
     return resumeCandidateOf(resume = resume, source = "playurl")
 }
+
+/**
+ * 多P视频从收藏/推荐等列表进入时，playurl 返回的 resume.lastCid 指向历史正在看的另一集。
+ * 当前默认播放第一集会丢失进度，这里返回应切换到的分P索引。
+ * 返回 null 表示无需切换（单集、lastCid 与当前一致、未命中分P列表等）。
+ */
+internal fun resolveAutoResumePartSwitchIndex(
+    parts: List<PlayerPlaylistItem>,
+    partsListIndex: Int,
+    autoResumeCancelledByUser: Boolean,
+    lastCid: Long?,
+    cid: Long,
+): Int? {
+    if (parts.size < 2) return null
+    if (autoResumeCancelledByUser) return null
+    val targetCid = lastCid?.takeIf { it > 0L } ?: return null
+    if (targetCid == cid) return null
+    val index = parts.indexOfFirst { (it.cid ?: 0L) == targetCid }
+    if (index < 0 || index == partsListIndex) return null
+    return index
+}
+
+internal fun PlayerActivity.resolveAutoResumePartSwitchIndex(
+    playStream: VideoPlayStream,
+    cid: Long,
+): Int? =
+    resolveAutoResumePartSwitchIndex(
+        parts = partsListItems,
+        partsListIndex = partsListIndex,
+        autoResumeCancelledByUser = autoResumeCancelledByUser,
+        lastCid = playStream.resume?.lastCid,
+        cid = cid,
+    )
 
 internal fun resumeCandidateOf(resume: VideoPlayResume, source: String): ResumeCandidate? {
     val time = resume.rawTime.takeIf { it > 0L } ?: return null

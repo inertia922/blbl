@@ -46,12 +46,16 @@ class VideoCardActionController(
         card: VideoCard,
         position: Int,
     ): List<VideoCardQuickAction> {
-        return listOf(
-            VideoCardQuickAction.videoDislike(context.getString(R.string.video_card_action_video_dislike)),
-            VideoCardQuickAction.upDislike(context.getString(R.string.video_card_action_up_dislike)),
-            VideoCardQuickAction.openUp(context.getString(R.string.video_card_action_open_up)),
-            VideoCardQuickAction.dismiss(context.getString(dismissActionLabelRes())),
-        )
+        return buildList {
+            add(VideoCardQuickAction.videoDislike(context.getString(R.string.video_card_action_video_dislike)))
+            add(VideoCardQuickAction.upDislike(context.getString(R.string.video_card_action_up_dislike)))
+            add(VideoCardQuickAction.openUp(context.getString(R.string.video_card_action_open_up)))
+            // LocalNotInterested 的 dismiss 与第一个“对视频不感兴趣”动作完全重复
+            // （都是 videoFeedbackDislike + 隐藏卡片），不再显示第 4 个按钮。
+            if (dismissBehavior != VideoCardDismissBehavior.LocalNotInterested) {
+                add(VideoCardQuickAction.dismiss(context.getString(dismissActionLabelRes())))
+            }
+        }
     }
 
     override fun onActionSelected(

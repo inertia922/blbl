@@ -27,7 +27,7 @@ internal data class PlayerCustomShortcutValuePickerConfig(
 internal object PlayerCustomShortcutCatalog {
     private val actionOptionsInternal =
         listOf(
-            PlayerCustomShortcutActionOption(PlayerCustomShortcutAction.TYPE_OPEN_VIDEO_LIST, "打开视频列表", requiresValue = true),
+            PlayerCustomShortcutActionOption(PlayerCustomShortcutAction.TYPE_OPEN_VIDEO_LIST, "打开来源列表", requiresValue = true),
             PlayerCustomShortcutActionOption(PlayerCustomShortcutAction.TYPE_OPEN_COMMENTS, "打开评论", requiresValue = false),
             PlayerCustomShortcutActionOption(PlayerCustomShortcutAction.TYPE_OPEN_SETTINGS, "打开设置", requiresValue = false),
             PlayerCustomShortcutActionOption(PlayerCustomShortcutAction.TYPE_SHOW_OSD, "呼出 OSD", requiresValue = false),
@@ -85,7 +85,7 @@ internal object PlayerCustomShortcutCatalog {
 
     fun actionLabel(action: PlayerCustomShortcutAction): String {
         return when (action) {
-            is PlayerCustomShortcutAction.OpenVideoList -> "打开视频列表：${openVideoListTargetText(action.target)}"
+            is PlayerCustomShortcutAction.OpenVideoList -> "打开来源列表：${openVideoListTargetText(action.target)}"
             PlayerCustomShortcutAction.OpenComments -> "打开评论"
             PlayerCustomShortcutAction.OpenSettings -> "打开设置"
             PlayerCustomShortcutAction.ShowOsd -> "呼出 OSD"
@@ -284,7 +284,7 @@ internal object PlayerCustomShortcutCatalog {
 private fun openVideoListTargetText(target: PlayerCustomShortcutOpenVideoListTarget): String {
     return when (target) {
         PlayerCustomShortcutOpenVideoListTarget.AUTO -> "自动"
-        PlayerCustomShortcutOpenVideoListTarget.PAGE -> "视频列表"
+        PlayerCustomShortcutOpenVideoListTarget.PAGE -> "来源列表"
         PlayerCustomShortcutOpenVideoListTarget.PARTS -> "合集/分P"
         PlayerCustomShortcutOpenVideoListTarget.RECOMMEND -> "推荐"
     }

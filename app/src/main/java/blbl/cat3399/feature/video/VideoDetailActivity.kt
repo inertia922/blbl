@@ -25,6 +25,7 @@ import blbl.cat3399.core.ui.AppToast
 import blbl.cat3399.core.ui.BaseActivity
 import blbl.cat3399.core.ui.GridSpanPolicy
 import blbl.cat3399.core.ui.Immersive
+import blbl.cat3399.core.ui.dispatchToDpadItemKeyHandler
 import blbl.cat3399.core.ui.ThemeColor
 import blbl.cat3399.core.ui.cloneInUserScale
 import blbl.cat3399.core.ui.requestFocusAdapterPositionReliable
@@ -295,6 +296,9 @@ class VideoDetailActivity : BaseActivity() {
             object : RecyclerView.OnChildAttachStateChangeListener {
                 override fun onChildViewAttachedToWindow(view: View) {
                     view.setOnKeyListener { v, keyCode, event ->
+                        // 长按出现的“感兴趣/不感兴趣”等 overlay 按钮优先消费按键，
+                        // 否则左右键会漏给系统焦点搜索导致直接跳到下一个视频
+                        if (v.dispatchToDpadItemKeyHandler(keyCode, event)) return@setOnKeyListener true
                         if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
                         if (keyCode != KeyEvent.KEYCODE_DPAD_UP) return@setOnKeyListener false
 

@@ -100,7 +100,7 @@
 
     <string name="player_btn_subtitle">字幕</string>
     <string name="player_btn_list_panel">列表</string>
-    <string name="player_list_tab_page">视频列表</string>
+    <string name="player_list_tab_page">来源列表</string>
     <string name="player_list_tab_parts">合集/分P</string>
     <string name="player_list_tab_recommend">推荐</string>
     <string name="player_list_empty">暂无内容</string>

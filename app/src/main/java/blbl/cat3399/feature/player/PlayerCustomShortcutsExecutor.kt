@@ -73,7 +73,7 @@ private fun PlayerActivity.applyPlayerCustomShortcut(keyCode: Int, action: Playe
     when (action) {
         is PlayerCustomShortcutAction.OpenVideoList -> {
             if (!showListPanelFromShortcut(target = action.target)) {
-                showSeekHint("视频列表：暂无", hold = false)
+                showSeekHint("来源列表：暂无", hold = false)
             }
         }
 

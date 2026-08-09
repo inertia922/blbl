@@ -541,6 +541,21 @@ internal fun PlayerActivity.startPlayback(
                     trace?.log("duration:playurl", "duration=${durationMs}ms")
                 }
                 showRiskControlBypassHintIfNeeded(playStream)
+                // 合集/多P从收藏、推荐等列表进入时：playurl 的 resume.lastCid 指向历史正在看的另一集，
+                // 自动切到那一集，再走完整续播流程（该集的 playurl resume 命中 lastCid == cid）。
+                // 仅限 RECOMMEND 入口：PAGE/PARTS 是用户在分P/合集面板的明确点选或切集，不能覆盖其意图。
+                if (pendingSeekMs == null && startFromList == PlayerVideoListKind.RECOMMEND) {
+                    val partSwitchIndex = resolveAutoResumePartSwitchIndex(playStream = playStream, cid = cid)
+                    if (partSwitchIndex != null) {
+                        trace?.log(
+                            "resume:switchPart",
+                            "cid=$cid lastCid=${playStream.resume?.lastCid} targetIndex=$partSwitchIndex targetCid=${partsListItems[partSwitchIndex].cid}",
+                        )
+                        startupJobs.forEach { it.cancel() }
+                        playPartsListIndex(partSwitchIndex)
+                        return@launch
+                    }
+                }
                 val initialResume =
                     if (pendingSeekMs == null) {
                         resolveInitialAutoResume(

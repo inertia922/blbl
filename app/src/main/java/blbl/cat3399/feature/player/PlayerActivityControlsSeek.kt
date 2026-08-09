@@ -461,7 +461,7 @@ internal fun PlayerActivity.beginKeySeekPending(keyCode: Int, direction: Int, sh
         }
 }
 
-internal fun PlayerActivity.holdSeekUsesProgressPreview(direction: Int): Boolean {
+internal fun PlayerActivity.holdSeekUsesProgressPreview(): Boolean {
     // Preview-scrub is only used when the seek bar itself is focused.
     // Long-press LEFT/RIGHT always use speed seek (see beginKeySeekPending).
     return when (BiliClient.prefs.playerHoldSeekMode) {

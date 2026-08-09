@@ -329,7 +329,7 @@ private fun PlayerActivity.refreshBottomCardPanelContent(
     if (!hasItems) {
         binding.tvListPanelEmpty.text =
             when (kind) {
-                PlayerVideoListKind.PAGE -> "暂无视频列表"
+                PlayerVideoListKind.PAGE -> "暂无来源列表"
                 PlayerVideoListKind.PARTS ->
                     if (partsListFetchJob?.isActive == true) {
                         "加载中…"

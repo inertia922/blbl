@@ -749,7 +749,11 @@ object BiliApi {
                 for (i in 0 until medias.length()) {
                     val obj = medias.optJSONObject(i) ?: continue
                     val bvid = obj.optString("bvid", "").trim()
-                    if (bvid.isBlank()) continue
+                    val title = obj.optString("title", "").trim()
+                    val cover = obj.optString("cover", "").trim()
+                    val duration = obj.optInt("duration", 0)
+                    // 过滤失效视频：B 站对已失效视频返回空 bvid/标题/封面，且时长为 0
+                    if (bvid.isBlank() || title.isBlank() || cover.isBlank() || duration <= 0) continue
                     val upper = obj.optJSONObject("upper") ?: JSONObject()
                     val cnt = obj.optJSONObject("cnt_info") ?: JSONObject()
                     val favTime = obj.optLong("fav_time").takeIf { it > 0 }
@@ -757,9 +761,9 @@ object BiliApi {
                         VideoCard(
                             bvid = bvid,
                             cid = obj.optLong("cid").takeIf { it > 0 },
-                            title = obj.optString("title", ""),
-                            coverUrl = obj.optString("cover", ""),
-                            durationSec = obj.optInt("duration", 0),
+                            title = title,
+                            coverUrl = cover,
+                            durationSec = duration,
                             ownerName = upper.optString("name", ""),
                             ownerFace = upper.optString("face").takeIf { it.isNotBlank() },
                             ownerMid = upper.optLong("mid").takeIf { it > 0 },
