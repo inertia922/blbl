@@ -6,6 +6,7 @@ import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -268,6 +269,7 @@ class LiveGridFragment : Fragment(), LivePageFocusTarget, RefreshKeyHandler {
                 val applied = result.appliedOrNull() ?: return@launch
                 applied.items.forEach { loadedRoomIds.add(it.roomId) }
                 if (applied.isRefresh) adapter.submit(applied.items) else if (applied.items.isNotEmpty()) adapter.append(applied.items)
+                updateEmptyHint()
                 _binding?.let { b ->
                     b.recycler.postIfAlive(isAlive = { _binding === b && isResumed }) {
                         if (pendingFocusFirstCardAfterRefresh && applied.isRefresh) {
@@ -309,6 +311,11 @@ class LiveGridFragment : Fragment(), LivePageFocusTarget, RefreshKeyHandler {
                 if (isRefresh) _binding?.swipeRefresh?.isRefreshing = false
             }
         }
+    }
+
+    private fun updateEmptyHint() {
+        val b = _binding ?: return
+        b.tvEmpty.isVisible = source == SRC_FOLLOWING && adapter.itemCount == 0
     }
 
     private fun spanCountForWidth(): Int {

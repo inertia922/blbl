@@ -15,6 +15,7 @@
     <string name="tab_history">历史</string>
     <string name="tab_fav">收藏</string>
     <string name="custom_page_empty">当前没有可用内容</string>
+    <string name="live_following_empty">暂无关注的UP主在直播</string>
     <string name="tab_settings">设置</string>
     <string name="sidebar_login">登录</string>
 
